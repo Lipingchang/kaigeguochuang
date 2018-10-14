@@ -121,29 +121,29 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        // 设置 滚动窗口上面的 滑动条
-//        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-//            @Override
-//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-//            }
-//
-//            @Override
-//            public void onPageSelected(int position) {
-//                for( int i = 0; i<toplist.length; i++){
-//                    TextView t = (TextView)findViewById(toplist[i]);
-//                    t.setBackgroundColor(0xffffffff);
-//                }
-//                TextView t = (TextView)findViewById(toplist[position]);
-//                t.setBackgroundColor(0xff00ff00);
-//            }
-//
-//            @Override
-//            public void onPageScrollStateChanged(int state) {
-//
-//            }
-//        });
-//
-//
+//         设置 滚动窗口上面的 滑动条
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                for( int i = 0; i<toplist.length; i++){
+                    TextView t = (TextView)findViewById(toplist[i]);
+                    t.setBackgroundColor(0xffffffff);
+                }
+                TextView t = (TextView)findViewById(toplist[position]);
+                t.setBackgroundColor(0xff00ff00);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
+
 
 
 

@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.Inflater;
 
 public class MyImagePager {
     static int layoutid = R.layout.viewpager_item;
@@ -22,11 +23,12 @@ public class MyImagePager {
         ViewPager viewPager = (ViewPager) context.findViewById(viewpageId);
 
         final List<View> views = new ArrayList<>();
+        LayoutInflater inflater = context.getLayoutInflater();
         for (Bitmap bm : bitmaplist) {
-            View layout = context.getLayoutInflater().inflate(layoutid, null, false);
-            ImageView iv = (ImageView) layout.findViewById(R.id.image);
+            View v = inflater.inflate(layoutid, null, false);
+            ImageView iv = (ImageView) v.findViewById(R.id.image);
             iv.setImageBitmap(bm);
-            views.add(iv);
+            views.add(v);
         }
         // 设置适配器
         PagerAdapter pagerAdapter = new PagerAdapter() {
@@ -83,6 +85,7 @@ public class MyImagePager {
 
             }
         });
+        
 
         return viewPager;
     }
