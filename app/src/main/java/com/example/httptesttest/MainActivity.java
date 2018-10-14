@@ -109,79 +109,41 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-        viewPager = (ViewPager)findViewById(R.id.viewpager);
-
-
-        final List<Bitmap> views = new ArrayList<>();
-         for( int i = 0; i<imagelist.length; i++){
+        // 先把要展示的图片放到 list 中
+        List<Bitmap> views = new ArrayList<>();
+        for( int i = 0; i<imagelist.length; i++){
              Bitmap bm = BitmapFactory.decodeResource(getResources(),imagelist[i]);
              views.add(bm);
         }
-
-        viewPager = new MyImagePager(this,views,R.id.viewpager);
-
-
+        // 获取设置好的viewPager
+        viewPager =  MyImagePager.getPager(this,views,R.id.viewpager);
 
 
 
-        // 设置 适配器
-        viewPager.setAdapter(pagerAdapter);
 
         // 设置 滚动窗口上面的 滑动条
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                for( int i = 0; i<toplist.length; i++){
-                    TextView t = (TextView)findViewById(toplist[i]);
-                    t.setBackgroundColor(0xffffffff);
-                }
-                TextView t = (TextView)findViewById(toplist[position]);
-                t.setBackgroundColor(0xff00ff00);
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-
-        viewPager.setClipChildren(false);
-        viewPager.setOffscreenPageLimit(2);
-        viewPager.setPageTransformer(true, new ViewPager.PageTransformer() {
-            @Override
-            public void transformPage(View page, float position) {
-                TextView t = (TextView)page.findViewById(R.id.textview);
-                TextView t2 = (TextView)page.findViewById(R.id.textview2);
-
-                int width = page.getWidth();
-
-                if( position <0 && position>-1){ // 最左边的view
-                    page.setAlpha( (float)((1+position)*0.7+0.3) );
-                    page.setScaleX((float) (( 1+position)*0.7 +0.3) );
-                    page.setScaleY((float) (( 1+position)*0.7 +0.3) );
-                }else if(position >0 && position <1 ){ // 中间的view
-                    page.setAlpha( (float)( (1-position)*0.5+0.5) );
-                    page.setScaleX((float) ((1-position)*0.5+0.5) );
-                    page.setScaleY((float) ((1-position)*0.5+0.5) );
-
-                }else if(position >1 && position<2){ // 右边的view
-                    page.setAlpha( (float)((position-1)*0.5+0.5) );
-                    page.setScaleX((float) ((position-1)*0.5+0.5) );
-                    page.setScaleY((float) ((position-1)*0.5+0.5) );
-
-                }
-
-
-
-
-            }
-        });
-
+//        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+//            @Override
+//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+//            }
+//
+//            @Override
+//            public void onPageSelected(int position) {
+//                for( int i = 0; i<toplist.length; i++){
+//                    TextView t = (TextView)findViewById(toplist[i]);
+//                    t.setBackgroundColor(0xffffffff);
+//                }
+//                TextView t = (TextView)findViewById(toplist[position]);
+//                t.setBackgroundColor(0xff00ff00);
+//            }
+//
+//            @Override
+//            public void onPageScrollStateChanged(int state) {
+//
+//            }
+//        });
+//
+//
 
 
 
