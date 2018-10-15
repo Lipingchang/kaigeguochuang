@@ -12,6 +12,7 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -57,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
 
     Bitmap currentBitmap;
 
+    int ALBUM_REQUEST_CODE = 1;
+    int CARMEAR_REQUEST_CODE = 2;
     Button monet,cezanne,ukiyoe,vangogh;
     public static String style = "";
     int[]  imagelist = {R.drawable.viewpage1,R.drawable.viewpage2,R.drawable.viewpage3,R.drawable.viewpage4,R.drawable.viewpage5,R.drawable.viewpage6};
@@ -128,10 +131,7 @@ public class MainActivity extends AppCompatActivity {
         myImagePager = MyImagePager.getPager(this,views,R.id.viewpager);
         viewPager =  myImagePager.viewPager;
 
-
-
-
-//         设置 滚动窗口上面的 滑动条
+        //设置 滚动窗口上面的 滑动条
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -154,123 +154,128 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
-
+        Button album = (Button)findViewById(R.id.btn_from_album);
+        album.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectPic();
+            }
+        });
+        Button carmea = (Button)findViewById(R.id.btn_from_carema);
+        carmea.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selecPicFromCarema();
+            }
+        });
 
     }
 
-
-
-    /**
-     * 打开本地相册选择图片
-     */
+    //打开相机选择图片
+    private void selecPicFromCarema(){
+        Intent it = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(it,CARMEAR_REQUEST_CODE);
+    }
+    //打开本地相册选择图片
     private void selectPic(){
-        //intent可以应用于广播和发起意图，其中属性有：ComponentName,action,data等
         Intent intent=new Intent();
         intent.setType("image/*");
-        //action表示intent的类型，可以是查看、删除、发布或其他情况；我们选择ACTION_GET_CONTENT，系统可以根据Type类型来调用系统程序选择Type
-        //类型的内容给你选择
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        //如果第二个参数大于或等于0，那么当用户操作完成后会返回到本程序的onActivityResult方法
-        startActivityForResult(intent, 1);
+        startActivityForResult(intent, ALBUM_REQUEST_CODE);
     }
-    /**
-     *把用户选择的图片显示在imageview中 然后发送请求，把返回的图片再次显示再imageview中
-     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        //用户操作完成，结果码返回是-1，即RESULT_OK
-        if(resultCode==RESULT_OK){
-            //获取选中文件的定位符
+
+        Bitmap img = null;
+        if( requestCode == CARMEAR_REQUEST_CODE && resultCode==RESULT_OK){  // 从照相机返回
+            Bundle bundle = data.getExtras();
+            Bitmap bitmap = (Bitmap) bundle.get("data");
+            //image.setImageBitmap(bitmap);
+            img = bitmap;
+
+        }else if( requestCode == ALBUM_REQUEST_CODE && resultCode == RESULT_OK ) {// 从相册返回
             Uri uri = data.getData();
-            Log.e("uri", uri.toString());
-            //使用content的接口
             ContentResolver cr = this.getContentResolver();
             try {
-                //获取图片
-                Bitmap bitmap = BitmapFactory.decodeStream(cr.openInputStream(uri));
-                currentBitmap = bitmap;
-
-                // 解码图片，转成 jpeg 格式
-                ByteArrayOutputStream s = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG,50,s);
-                //writeBitmapToFile("jpg.jpg",bitmap,50);
-                byte[] b = s.toByteArray();
-                String lastString= Base64.encodeToString(b, Base64.DEFAULT);
-
-                //writeStringToFile("jpg.txt",lastString);
-                //System.out.println("base64 size:"+lastString.length() );
-
-                // 展示图片
-                Canvas canvas = new Canvas(bitmap);
-//                Paint paint = new Paint();
-//                ColorMatrix matrix = new ColorMatrix();
-//                matrix.setSaturation(0);//饱和度为0，直接设置成灰度图像
-//                paint.setColorFilter(new ColorMatrixColorFilter(matrix));
-//
-//                作者：卖梦想的孩纸
-//                链接：https://www.jianshu.com/p/427ac9cadad6
-//                來源：简书
-//                简书著作权归作者所有，任何形式的转载都请联系作者获得授权并注明出处。
-               // canvas.drawBitmap(bitmap,0,0,paint);
-
-                image.setImageBitmap(bitmap);
-
-
-
-                textView.setText("data transporting..." +
-                        "\nplease wait");
-                AsynNetUtils.post("http://10.66.4.114:9999",  lastString , new AsynNetUtils.Callback() {
-                    @Override
-                    public void onResponse(String response) {
-                        //textView.setText(response);
-                        // 解析json串
-                        String images="",style="",msg="",date="",reason="";
-                        textView.setText("receive ok.");
-                        try {
-                            JsonReader reader = new JsonReader(new StringReader(response));
-
-                            reader.beginObject();
-                            while( reader.hasNext() ){
-                                String keyname = reader.nextName();
-
-                                if( "image".equals(keyname) ){
-                                    images = reader.nextString();
-                                }else if( "msg".equals(keyname) ){
-                                    msg = reader.nextString();
-                                }else if( "date".equals(keyname) ){
-                                    date = reader.nextString();
-                                }else if( "style".equals(keyname) ){
-                                    style = reader.nextString();
-                                }else if("reason".equals(keyname)){
-                                    reason = reader.nextString();
-                                }
-
-                            }
-                            reader.endObject();
-
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
-
-
-                        //textView.setText(images);
-
-                        // 把json串中的 image转成bitmap 然后展示
-                        Bitmap bt = base642Bitmap(images);
-                        image.setImageBitmap(bt);
-
-                    }
-
-                });
+                 Bitmap bitmap = BitmapFactory.decodeStream(cr.openInputStream(uri));
+                 img = bitmap;
             } catch (Exception e) {
                 Log.e("Exception", e.getMessage(),e);
             }
         }else{
             //操作错误或没有选择图片
+            Log.d("MainActivity","requestCode:"+requestCode+",resultCode:"+resultCode+",data:"+data.toString());
             Log.i("MainActivtiy", "operation error");
         }
+
+        if( img != null ){
+            currentBitmap = img;
+            conventImage();
+        }
+
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    // 把照片
+    public void conventImage(){
+        Bitmap bitmap = currentBitmap;
+
+        // 解码图片，转成 jpeg 格式
+        ByteArrayOutputStream s = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG,50,s);
+        //writeBitmapToFile("jpg.jpg",bitmap,50);
+        byte[] b = s.toByteArray();
+        String lastString= Base64.encodeToString(b, Base64.DEFAULT);
+
+        //writeStringToFile("jpg.txt",lastString);
+        //System.out.println("base64 size:"+lastString.length() );
+
+        // 展示图片
+        image.setImageBitmap(bitmap);
+
+        AsynNetUtils.post("http://10.66.4.114:9999",  lastString , new AsynNetUtils.Callback() {
+            @Override
+            public void onResponse(String response) {
+                //textView.setText(response);
+                // 解析json串
+                String images="",style="",msg="",date="",reason="";
+                textView.setText("receive ok.");
+                try {
+                    JsonReader reader = new JsonReader(new StringReader(response));
+
+                    reader.beginObject();
+                    while( reader.hasNext() ){
+                        String keyname = reader.nextName();
+
+                        if( "image".equals(keyname) ){
+                            images = reader.nextString();
+                        }else if( "msg".equals(keyname) ){
+                            msg = reader.nextString();
+                        }else if( "date".equals(keyname) ){
+                            date = reader.nextString();
+                        }else if( "style".equals(keyname) ){
+                            style = reader.nextString();
+                        }else if("reason".equals(keyname)){
+                            reason = reader.nextString();
+                        }
+
+                    }
+                    reader.endObject();
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
+
+                //textView.setText(images);
+
+                // 把json串中的 image转成bitmap 然后展示
+                Bitmap bt = base642Bitmap(images);
+                image.setImageBitmap(bt);
+
+            }
+
+        });
     }
     public void setAllBtnToCommon(){
         monet.setBackground(getResources().getDrawable (  R.drawable.common, null ) );
