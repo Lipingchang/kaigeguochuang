@@ -29,11 +29,16 @@ public class MyImagePager {
     List<Bitmap> bms;
     List<View> views;
 
-    public MyImagePager(ViewPager viewPager, PagerAdapter pagerAdapter, List<Bitmap> bms, List<View> views) {
+
+    public void setData(ViewPager viewPager, PagerAdapter pagerAdapter, List<Bitmap> bms, List<View> views) {
         this.viewPager = viewPager;
         this.pagerAdapter = pagerAdapter;
         this.bms = bms;
         this.views = views;
+    }
+
+    public MyImagePager(){
+
     }
 
     // 把 第 index 个的图片替换掉
@@ -107,8 +112,10 @@ public class MyImagePager {
     }
 
     public static MyImagePager getPager(AppCompatActivity context, List<Bitmap> bitmaplist, int viewpageId) {
-        ViewPager viewPager = (ViewPager) context.findViewById(viewpageId);
+        final ViewPager viewPager = (ViewPager) context.findViewById(viewpageId);
+        final MyImagePager m = new MyImagePager();
 
+        // 初始化view
         final List<View> views = new ArrayList<>();
         LayoutInflater inflater = context.getLayoutInflater();
         for (Bitmap bm : bitmaplist) {
@@ -117,6 +124,7 @@ public class MyImagePager {
             iv.setImageBitmap(bm);
             views.add(v);
         }
+
         // 设置适配器
         PagerAdapter pagerAdapter = new PagerAdapter() {
             @Override
@@ -145,33 +153,33 @@ public class MyImagePager {
         // 设置可以看到 不是main的item
         viewPager.setClipChildren(false);
         viewPager.setOffscreenPageLimit(2);
+        viewPager.setPageMargin(-210);
+
         viewPager.setPageTransformer(true, new ViewPager.PageTransformer() {
             @Override
             public void transformPage(View page, float position) {
                 TextView t = (TextView) page.findViewById(R.id.textview);
                 TextView t2 = (TextView) page.findViewById(R.id.textview2);
 
-                int width = page.getWidth();
-
                 if (position < 0 && position > -1) { // 最左边的view
                     page.setAlpha((float) ((1 + position) * 0.7 + 0.3));
                     page.setScaleX((float) ((1 + position) * 0.7 + 0.3));
                     page.setScaleY((float) ((1 + position) * 0.7 + 0.3));
 
-
-                } else if (position > 0 && position < 1) { // 中间的view
-                    page.setAlpha((float) ((1 - position) * 0.5 + 0.5));
-                    page.setScaleX((float) ((1 - position) * 0.5 + 0.5));
-                    page.setScaleY((float) ((1 - position) * 0.5 + 0.5));
-
-
-
                 } else if (position > 1 && position < 2) { // 右边的view
                     page.setAlpha((float) ((position - 1) * 0.5 + 0.5));
                     page.setScaleX((float) ((position - 1) * 0.5 + 0.5));
                     page.setScaleY((float) ((position - 1) * 0.5 + 0.5));
+                }
+                else if (position > 0 && position < 1) { // 中间的view
+                    page.setAlpha((float) ((1 - position) * 0.5 + 0.5));
+                    page.setScaleX((float) ((1 - position) * 0.5 + 0.5));
+                    page.setScaleY((float) ((1 - position) * 0.5 + 0.5));
+
+                }else if( position==0 ){
 
                 }
+
 
 
             }
@@ -182,7 +190,9 @@ public class MyImagePager {
         views.get(1).setScaleX((float)0.5);
         views.get(1).setScaleY((float)0.5);
 
-        MyImagePager m = new MyImagePager(viewPager,pagerAdapter,bitmaplist,views);
+        m.setData(viewPager,pagerAdapter,bitmaplist,views);
+
+
         return m;
     }
 

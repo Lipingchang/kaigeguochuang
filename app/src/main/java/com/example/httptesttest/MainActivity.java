@@ -51,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
     public static AppCompatActivity act;
     TextView textView ;
     Button button;
-    ImageView image;
 
     ViewPager viewPager;
     MyImagePager myImagePager;
@@ -60,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
     int ALBUM_REQUEST_CODE = 1;
     int CARMEAR_REQUEST_CODE = 2;
-    Button monet,cezanne,ukiyoe,vangogh;
+    Button monet,cezanne,ukiyoe, vangogh,album;
     public static String style = "";
     int[]  imagelist = {R.drawable.viewpage1,R.drawable.viewpage2,R.drawable.viewpage3,R.drawable.viewpage4,R.drawable.viewpage5,R.drawable.viewpage6};
     int[] toplist = {R.id.top_1,R.id.top_2,R.id.top_3,R.id.top_4,R.id.top_5,R.id.top_6};
@@ -70,56 +69,25 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        setContentView(R.layout.activity_main);
-        textView = (TextView)findViewById(R.id.show);
-        image = (ImageView) findViewById(R.id.image);
-
-
-        monet = (Button)findViewById(R.id.monet);
-        cezanne =(Button) findViewById(R.id.cezanne);
-        ukiyoe = (Button)findViewById(R.id.ukiyoe);
-        vangogh = (Button)findViewById(R.id.vangogh);
+        setContentView(R.layout.activity_main2);
         act = this;
 
-        monet.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                style = "monet";
-                setAllBtnToCommon();
-                monet.setBackground(getResources().getDrawable (  R.drawable.common_pressed, null ));
-                selectPic();
-            }
-        });
-        cezanne.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                style = "cezanne";
-                setAllBtnToCommon();
-                cezanne.setBackground(getResources().getDrawable (  R.drawable.common_pressed, null ));
-                selectPic();
-
-            }
-        });
-        ukiyoe.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                style = "ukiyoe";
-//                setAllBtnToCommon();
-//                ukiyoe.setBackground(getResources().getDrawable (  R.drawable.common_pressed, null ));
-//                selectPic();
-                ukiyoe.setText("设置等待");
-                myImagePager.setLoading(1);
-            }
-        });
-        vangogh.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //  更换viewpager中的图片
-                vangogh.setText("改变图片&完成加载");
-                myImagePager.setImage(1,BitmapFactory.decodeResource(getResources(),R.drawable.viewpage666) );
-                myImagePager.setLoaded(1);
-            }
-        });
+//        ukiyoe.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                ukiyoe.setText("设置等待");
+//                myImagePager.setLoading(1);
+//            }
+//        });
+//        vangogh.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                //  更换viewpager中的图片
+//                vangogh.setText("改变图片&完成加载");
+//                myImagePager.setImage(1,BitmapFactory.decodeResource(getResources(),R.drawable.viewpage666) );
+//                myImagePager.setLoaded(1);
+//            }
+//        });
 
         // 先把要展示的图片放到 list 中
         List<Bitmap> views = new ArrayList<>();
@@ -132,29 +100,37 @@ public class MainActivity extends AppCompatActivity {
         viewPager =  myImagePager.viewPager;
 
         //设置 滚动窗口上面的 滑动条
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            }
+//        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+//            @Override
+//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+//                View view = myImagePager.views.get(position);  // @@@ Get target page reference
+//                view.bringToFront();
+//                System.out.println("2:"+position);
+//            }
+//
+//            @Override
+//            public void onPageSelected(int position) {
+//                View view = myImagePager.views.get(position);  // @@@ Get target page reference
+//                view.bringToFront();
+//                System.out.println(position);
+//
+//                for( int i = 0; i<toplist.length; i++){
+//                    TextView t = (TextView)findViewById(toplist[i]);
+//                    t.setBackgroundColor(0xffffffff);
+//                }
+//                TextView t = (TextView)findViewById(toplist[position]);
+//                t.setBackgroundColor(0xff00ff00);
+//             }
+//
+//            @Override
+//            public void onPageScrollStateChanged(int state) {
+//
+//            }
+//        });
 
-            @Override
-            public void onPageSelected(int position) {
-                for( int i = 0; i<toplist.length; i++){
-                    TextView t = (TextView)findViewById(toplist[i]);
-                    t.setBackgroundColor(0xffffffff);
-                }
-                TextView t = (TextView)findViewById(toplist[position]);
-                t.setBackgroundColor(0xff00ff00);
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
 
 
-        Button album = (Button)findViewById(R.id.btn_from_album);
+        album = (Button)findViewById(R.id.btn_from_album);
         album.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -166,6 +142,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 selecPicFromCarema();
+            }
+        });
+        Button test = (Button)findViewById(R.id.test);
+        test.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
             }
         });
 
@@ -230,9 +213,6 @@ public class MainActivity extends AppCompatActivity {
         //writeStringToFile("jpg.txt",lastString);
         //System.out.println("base64 size:"+lastString.length() );
 
-        // 展示图片
-        image.setImageBitmap(bitmap);
-
         AsynNetUtils.post("http://10.66.4.114:9999",  lastString , new AsynNetUtils.Callback() {
             @Override
             public void onResponse(String response) {
@@ -271,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // 把json串中的 image转成bitmap 然后展示
                 Bitmap bt = base642Bitmap(images);
-                image.setImageBitmap(bt);
+//                image.setImageBitmap(bt);
 
             }
 

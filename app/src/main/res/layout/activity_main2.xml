@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
+    android:background="#ff8f7f3a"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -51,26 +52,35 @@
         android:gravity="center"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="1400px">
         <android.support.v4.view.ViewPager
-            android:layout_marginRight="100px"
-            android:layout_marginLeft="100px"
             android:id="@+id/viewpager"
-            android:layout_width="1000px"
-            android:layout_height="500px">
+            android:layout_width="800px"
+            android:layout_height="match_parent">
         </android.support.v4.view.ViewPager>
     </LinearLayout>
 
-    <Button
-        android:id="@+id/btn_from_album"
-        android:text="相册导入"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <Button
-        android:id="@+id/btn_from_carema"
-        android:text="相机导入"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/btn_from_album"
+            android:text="相册导入"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/btn_from_carema"
+            android:text="相机导入"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/test"
+            android:text="test"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
 
 
 
