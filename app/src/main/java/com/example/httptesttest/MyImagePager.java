@@ -19,7 +19,30 @@ import java.util.zip.Inflater;
 public class MyImagePager {
     static int layoutid = R.layout.viewpager_item;
 
-    public static ViewPager getPager(AppCompatActivity context, List<Bitmap> bitmaplist, int viewpageId) {
+    ViewPager viewPager;
+    PagerAdapter pagerAdapter;
+    List<Bitmap> bms;
+    List<View> views;
+
+    public MyImagePager(ViewPager viewPager, PagerAdapter pagerAdapter, List<Bitmap> bms, List<View> views) {
+        this.viewPager = viewPager;
+        this.pagerAdapter = pagerAdapter;
+        this.bms = bms;
+        this.views = views;
+    }
+    public void setImage(int index,Bitmap bitmap){
+        if( index<0 || index>=views.size() ){
+            return;
+        }
+
+        bms.set(index,bitmap);
+        View v = views.get(index);
+        ((ImageView)v.findViewById(R.id.image)).setImageBitmap(bitmap);
+        pagerAdapter.notifyDataSetChanged();
+    }
+
+
+    public static MyImagePager getPager(AppCompatActivity context, List<Bitmap> bitmaplist, int viewpageId) {
         ViewPager viewPager = (ViewPager) context.findViewById(viewpageId);
 
         final List<View> views = new ArrayList<>();
@@ -85,9 +108,14 @@ public class MyImagePager {
 
             }
         });
-        
+        // 初始化第二个item的大小
+        viewPager.setCurrentItem(0);
+        views.get(1).setAlpha((float)0.5);
+        views.get(1).setScaleX((float)0.5);
+        views.get(1).setScaleY((float)0.5);
 
-        return viewPager;
+        MyImagePager m = new MyImagePager(viewPager,pagerAdapter,bitmaplist,views);
+        return m;
     }
 
 }

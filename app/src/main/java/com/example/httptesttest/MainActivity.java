@@ -47,7 +47,11 @@ public class MainActivity extends AppCompatActivity {
     TextView textView ;
     Button button;
     ImageView image;
+
     ViewPager viewPager;
+    MyImagePager myImagePager;
+
+    Bitmap currentBitmap;
 
     Button monet,cezanne,ukiyoe,vangogh;
     public static String style = "";
@@ -83,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 style = "cezanne";
-
                 setAllBtnToCommon();
                 cezanne.setBackground(getResources().getDrawable (  R.drawable.common_pressed, null ));
                 selectPic();
@@ -93,19 +96,22 @@ public class MainActivity extends AppCompatActivity {
         ukiyoe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                style = "ukiyoe";
-                setAllBtnToCommon();
-                ukiyoe.setBackground(getResources().getDrawable (  R.drawable.common_pressed, null ));
-                selectPic();
+//                style = "ukiyoe";
+//                setAllBtnToCommon();
+//                ukiyoe.setBackground(getResources().getDrawable (  R.drawable.common_pressed, null ));
+//                selectPic();
             }
         });
         vangogh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                style = "vangogh";
-                setAllBtnToCommon();
-                vangogh.setBackground(getResources().getDrawable (  R.drawable.common_pressed, null ));
-                selectPic();
+//                style = "vangogh";
+//                setAllBtnToCommon();
+//                vangogh.setBackground(getResources().getDrawable (  R.drawable.common_pressed, null ));
+//                selectPic();
+                // 跟换viewpager中的图片
+            vangogh.setText("动态改图片");
+            myImagePager.setImage(1,BitmapFactory.decodeResource(getResources(),R.drawable.viewpage666) );
             }
         });
 
@@ -116,7 +122,8 @@ public class MainActivity extends AppCompatActivity {
              views.add(bm);
         }
         // 获取设置好的viewPager
-        viewPager =  MyImagePager.getPager(this,views,R.id.viewpager);
+        myImagePager = MyImagePager.getPager(this,views,R.id.viewpager);
+        viewPager =  myImagePager.viewPager;
 
 
 
@@ -179,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 //获取图片
                 Bitmap bitmap = BitmapFactory.decodeStream(cr.openInputStream(uri));
+                currentBitmap = bitmap;
 
                 // 解码图片，转成 jpeg 格式
                 ByteArrayOutputStream s = new ByteArrayOutputStream();
@@ -287,6 +295,11 @@ public class MainActivity extends AppCompatActivity {
         byte[] decodedString = Base64.decode(base, Base64.DEFAULT);
         Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
         return decodedByte;
+    }
+    public static Bitmap getThumb(Bitmap bm,int w,int h){
+        Bitmap b = Bitmap.createBitmap(bm);
+         bm.setHeight(h);
+        bm.setWidth(w);
     }
 //---------------------
 //    作者：陌天恒
