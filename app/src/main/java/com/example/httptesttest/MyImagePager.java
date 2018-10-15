@@ -158,14 +158,12 @@ public class MyImagePager {
                     page.setScaleX((float) ((1 + position) * 0.7 + 0.3));
                     page.setScaleY((float) ((1 + position) * 0.7 + 0.3));
 
-                    page.setScrollX( (int)( -(1+position)*600  ));
 
                 } else if (position > 0 && position < 1) { // 中间的view
                     page.setAlpha((float) ((1 - position) * 0.5 + 0.5));
                     page.setScaleX((float) ((1 - position) * 0.5 + 0.5));
                     page.setScaleY((float) ((1 - position) * 0.5 + 0.5));
 
-                    page.setScrollX( (int)( (1+position)*600  ));
 
 
                 } else if (position > 1 && position < 2) { // 右边的view
