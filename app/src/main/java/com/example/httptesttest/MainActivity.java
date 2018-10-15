@@ -7,6 +7,10 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -100,18 +104,17 @@ public class MainActivity extends AppCompatActivity {
 //                setAllBtnToCommon();
 //                ukiyoe.setBackground(getResources().getDrawable (  R.drawable.common_pressed, null ));
 //                selectPic();
+                ukiyoe.setText("设置等待");
+                myImagePager.setLoading(1);
             }
         });
         vangogh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                style = "vangogh";
-//                setAllBtnToCommon();
-//                vangogh.setBackground(getResources().getDrawable (  R.drawable.common_pressed, null ));
-//                selectPic();
-                // 跟换viewpager中的图片
-            vangogh.setText("动态改图片");
-            myImagePager.setImage(1,BitmapFactory.decodeResource(getResources(),R.drawable.viewpage666) );
+                //  更换viewpager中的图片
+                vangogh.setText("改变图片&完成加载");
+                myImagePager.setImage(1,BitmapFactory.decodeResource(getResources(),R.drawable.viewpage666) );
+                myImagePager.setLoaded(1);
             }
         });
 
@@ -199,7 +202,22 @@ public class MainActivity extends AppCompatActivity {
                 //System.out.println("base64 size:"+lastString.length() );
 
                 // 展示图片
+                Canvas canvas = new Canvas(bitmap);
+//                Paint paint = new Paint();
+//                ColorMatrix matrix = new ColorMatrix();
+//                matrix.setSaturation(0);//饱和度为0，直接设置成灰度图像
+//                paint.setColorFilter(new ColorMatrixColorFilter(matrix));
+//
+//                作者：卖梦想的孩纸
+//                链接：https://www.jianshu.com/p/427ac9cadad6
+//                來源：简书
+//                简书著作权归作者所有，任何形式的转载都请联系作者获得授权并注明出处。
+               // canvas.drawBitmap(bitmap,0,0,paint);
+
                 image.setImageBitmap(bitmap);
+
+
+
                 textView.setText("data transporting..." +
                         "\nplease wait");
                 AsynNetUtils.post("http://10.66.4.114:9999",  lastString , new AsynNetUtils.Callback() {
@@ -296,10 +314,13 @@ public class MainActivity extends AppCompatActivity {
         Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
         return decodedByte;
     }
+
+
     public static Bitmap getThumb(Bitmap bm,int w,int h){
         Bitmap b = Bitmap.createBitmap(bm);
          bm.setHeight(h);
         bm.setWidth(w);
+        return b;
     }
 //---------------------
 //    作者：陌天恒
