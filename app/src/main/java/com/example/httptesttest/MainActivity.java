@@ -229,8 +229,8 @@ public class MainActivity extends AppCompatActivity {
         currentBitmap = img;
         int w,h,img_w,img_h;
 
-          w = bgview.getWidth();  h = bgview.getHeight();
-          img_w = img.getWidth();   img_h = img.getHeight();
+        w = bgview.getWidth();  h = bgview.getHeight();
+        img_w = img.getWidth();   img_h = img.getHeight();
 
         float w_bei = (float)(w*1.0/img_w);
         float h_bei = (float)(h*1.0/img_h);
@@ -242,6 +242,13 @@ public class MainActivity extends AppCompatActivity {
         Bitmap center = Bitmap.createBitmap(img,(img.getWidth()-w)/2,(img.getHeight()-h)/2,w,h);
         // 模糊化 放上去
         Blurry.with(act).radius(30).from(center).into( bgview);
+
+        // 计算viewpager 中的image的大小
+        if( img_w < )
+        //更新viewpager
+        for( int i = 0; i<imagelist.length; i++){
+            myImagePager.setImage(i,currentBitmap);
+        }
 
     }
 

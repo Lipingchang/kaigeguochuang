@@ -836,9 +836,5 @@ public class Util {
         Bitmap newbm = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, true);
         return newbm;
     }
-//---------------------
-//    作者：圣西罗的红与黑v
-//    来源：CSDN
-//    原文：https://blog.csdn.net/GXL_1899/article/details/77449908?utm_source=copy
-//    版权声明：本文为博主原创文章，转载请附上博文链接！
+
 }
