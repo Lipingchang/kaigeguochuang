@@ -36,9 +36,11 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -50,6 +52,10 @@ import com.tencent.tauth.IUiListener;
 import com.tencent.tauth.UiError;
 
 public class Util {
+
+
+    private static final String CAMERA_DIR = "/dcim/";
+    private static final String albumName ="CameraSample";
 
     private static final String TAG = "SDK_Sample.Util";
 
@@ -813,8 +819,54 @@ public class Util {
     //打开相机选择图片
     public static void selecPicFromCarema(){
         Intent it = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        MainActivity.act.startActivityForResult(it,MainActivity.CARMEAR_REQUEST_CODE);
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+
+        String filename = "hhh"+System.currentTimeMillis()+".jpg";
+        File cameraFile = new File(getPhotoDir().getAbsolutePath()+filename);
+
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(cameraFile));
+        MainActivity.act.startActivityForResult(intent, MainActivity.CARMEAR_REQUEST_CODE);
+        System.out.println("22:"+cameraFile.getAbsolutePath());
+
+        MainActivity.savedPhoto = Uri.fromFile(cameraFile);
+
+
+        //MainActivity.act.startActivityForResult(it,MainActivity.CARMEAR_REQUEST_CODE);
     }
+    private static File getPhotoDir(){
+        File storDirPrivate = null;
+        File storDirPublic = null;
+
+        if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())){
+
+            //private,只有本应用可访问
+            storDirPrivate = new File (
+                    Environment.getExternalStorageDirectory()
+                            + CAMERA_DIR
+                            + albumName
+            );
+
+            //public 所有应用均可访问
+            storDirPublic = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),albumName);
+            System.out.println("dir:"+storDirPublic.getAbsolutePath());
+            if (storDirPublic != null) {
+                if (! storDirPublic.mkdirs()) {
+                    if (! storDirPublic.exists()){
+                        Log.d("CameraSample", "failed to create directory");
+                        return null;
+                    }
+                }
+            }
+        }else {
+            Log.v("myerror", "External storage is not mounted READ/WRITE.");
+        }
+
+        return storDirPublic;//或者return storDirPrivate;
+
+    }
+
     //打开本地相册选择图片
     public static void selectPic(){
         Intent intent=new Intent();
@@ -835,6 +887,50 @@ public class Util {
         // 得到新的图片.
         Bitmap newbm = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, true);
         return newbm;
+    }
+
+    public static int readPictureDegree(String path) {
+        int degree = 0;
+        try {
+            ExifInterface exifInterface = new ExifInterface(path);
+            int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    degree = 90;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    degree = 180;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    degree = 270;
+                    break;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return degree;
+    }
+
+    public static Bitmap rotaingImageView(int angle, Bitmap bitmap) {
+        if(angle == 0){
+            return bitmap;
+        }
+        Bitmap returnBm = null;
+        // 根据旋转角度，生成旋转矩阵
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        try {
+            // 将原始图片按照旋转矩阵进行旋转，并得到新的图片
+            returnBm = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        } catch (OutOfMemoryError e) {
+        }
+        if (returnBm == null) {
+            returnBm = bitmap;
+        }
+        if (bitmap != returnBm) {
+            bitmap.recycle();
+        }
+        return returnBm;
     }
 
 }
