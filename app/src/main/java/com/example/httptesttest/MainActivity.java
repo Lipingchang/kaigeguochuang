@@ -1,9 +1,12 @@
 package com.example.httptesttest;
 
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,6 +15,7 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
@@ -66,15 +70,19 @@ public class MainActivity extends AppCompatActivity {
 
     Bitmap currentBitmap;
 
-    int ALBUM_REQUEST_CODE = 1;
-    int CARMEAR_REQUEST_CODE = 2;
-    Button monet,cezanne,ukiyoe, vangogh,album;
-    public static String style = "";
-    int[]  imagelist = {R.drawable.viewpage1,R.drawable.viewpage2,R.drawable.viewpage3,R.drawable.viewpage4,R.drawable.viewpage5,R.drawable.viewpage6};
-    int[] toplist = {R.id.top_1,R.id.top_2,R.id.top_3,R.id.top_4,R.id.top_5,R.id.top_6};
+    static final int ALBUM_REQUEST_CODE = 1;
+    static final int CARMEAR_REQUEST_CODE = 2;
+    static final int REQUEST_PERMISSION_CODE = 0;
 
-    MyIUiListener uiListener;
-    Tencent mTencent;
+    Button monet, cezanne, ukiyoe, vangogh, album;
+    public static String style = "";
+    int[] imagelist = {R.drawable.viewpage1, R.drawable.viewpage2, R.drawable.viewpage3, R.drawable.viewpage4, R.drawable.viewpage5, R.drawable.viewpage6};
+
+
+    static Tencent mTencent;
+    IUiListener qqShareListener;
+    String imageURI;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,113 +91,106 @@ public class MainActivity extends AppCompatActivity {
 
         // 先把要展示的图片放到 list 中
         List<Bitmap> views = new ArrayList<>();
-        for( int i = 0; i<imagelist.length; i++){
-             Bitmap bm = BitmapFactory.decodeResource(getResources(),imagelist[i]);
-             views.add(bm);
+        for (int i = 0; i < imagelist.length; i++) {
+            Bitmap bm = BitmapFactory.decodeResource(getResources(), imagelist[i]);
+            views.add(bm);
         }
         // 获取设置好的viewPager
-        myImagePager = MyImagePager.getPager(this,views,R.id.viewpager);
-        viewPager =  myImagePager.viewPager;
+        myImagePager = MyImagePager.getPager(this, views, R.id.viewpager);
+        viewPager = myImagePager.viewPager;
 
+        textView = (TextView) findViewById(R.id.textview);
 
-
-        album = (Button)findViewById(R.id.btn_from_album);
+        album = (Button) findViewById(R.id.btn_from_album);
         album.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 selectPic();
             }
         });
-        Button carmea = (Button)findViewById(R.id.btn_from_carema);
+        Button carmea = (Button) findViewById(R.id.btn_from_carema);
         carmea.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 selecPicFromCarema();
             }
         });
-        Button test = (Button)findViewById(R.id.test);
+        Button test = (Button) findViewById(R.id.test);
         test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                shareImgToQQ("android.resource://your.package.here/drawable/image_name");
-
-                //shareImgToQQ(Uri.parse("android.resource://com.example.httptesttest/"+R.drawable.viewpage666).toString());
+                shareQQ(imageURI);
             }
         });
 
-        // qq分享回调
-        mTencent = Tencent.createInstance("1107906730",getApplicationContext());
-        uiListener = new MyIUiListener();
 
+        mTencent = Tencent.createInstance("1107906730", getApplicationContext()); // 设置和QQ的分享的实例
+        qqShareListener = Util.getQQListener(act); // 设置成功分享后的回调
+
+        Util.getPermission(act);// 收集权限
     }
-    public void share(View view)
-    {
+
+    //收集权限后的回调
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_PERMISSION_CODE: {
+                for (int i = 0; i < permissions.length; i++) {
+                    if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                        System.out.println("Permissions --> " + "Permission Granted: " + permissions[i]);
+                    } else if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                        System.out.println("Permissions --> " + "Permission Denied: " + permissions[i]);
+                    }
+                }
+            }
+            break;
+            default: {
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            }
+        }
+        // TODO 权限没收到
+    }
+
+
+    //发送QQ分享
+    public void shareQQ(String uri) {
         final Bundle params = new Bundle();
-        params.putInt(QQShare.SHARE_TO_QQ_KEY_TYPE, QQShare.SHARE_TO_QQ_TYPE_DEFAULT);
-        params.putString(QQShare.SHARE_TO_QQ_TITLE, "要分享的标题");
-        params.putString(QQShare.SHARE_TO_QQ_SUMMARY,  "要分享的摘要");
-        params.putString(QQShare.SHARE_TO_QQ_TARGET_URL,  "http://www.qq.com/news/1.html");
-        params.putString(QQShare.SHARE_TO_QQ_IMAGE_URL,"http://imgcache.qq.com/qzone/space_item/pre/0/66768.gif");
-        params.putString(QQShare.SHARE_TO_QQ_APP_NAME,  "测试应用222222");
-        params.putInt(QQShare.SHARE_TO_QQ_EXT_INT, 1);
-        mTencent.shareToQQ(MainActivity.this, params, new MyIUiListener());
-    }
+        params.putString( QQShare.SHARE_TO_QQ_IMAGE_LOCAL_URL, uri);
+        params.putString(QQShare.SHARE_TO_QQ_APP_NAME, "appnamenamename");
+        params.putInt(QQShare.SHARE_TO_QQ_KEY_TYPE, QQShare.SHARE_TO_QQ_TYPE_IMAGE);
+        params.putInt(QQShare.SHARE_TO_QQ_EXT_INT, 0x00); //0x00
+        ThreadManager.getMainHandler().post(new Runnable() {
 
-    class MyIUiListener implements IUiListener {
-        @Override
-        public void onComplete(Object o) {
-            // 操作成功
-            System.out.println("complete");
-        }
-        @Override
-        public void onError(UiError uiError) {
-            // 分享异常
-            System.out.println("error");
-
-        }
-        @Override
-        public void onCancel() {
-            // 取消分享
-            System.out.println("cancel");
-
-        }
-    }
-
-    private Bundle params;
-    private void shareImgToQQ(String imgUrl) {
-        params = new Bundle();
-        params.putInt(QQShare.SHARE_TO_QQ_KEY_TYPE, QQShare.SHARE_TO_QQ_TYPE_IMAGE);// 设置分享类型为纯图片分享
-        params.putString(QQShare.SHARE_TO_QQ_IMAGE_LOCAL_URL, imgUrl);// 需要分享的本地图片URL
-        // 分享操作要在主线程中完成
-        new Handler(act.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                mTencent.shareToQQ(act, params, uiListener);
+                if (null != MainActivity.mTencent) {
+                    MainActivity.mTencent.shareToQQ(act, params, qqShareListener);
+                }
             }
         });
+
     }
 
-//
-//    作者：紫豪
-//    链接：https://www.jianshu.com/p/4e2184649545
-//    來源：简书
-//    简书著作权归作者所有，任何形式的转载都请联系作者获得授权并注明出处。
 
-    //打开相机选择图片
-    private void selecPicFromCarema(){
-        Intent it = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(it,CARMEAR_REQUEST_CODE);
-    }
-    //打开本地相册选择图片
-    private void selectPic(){
-        Intent intent=new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(intent, ALBUM_REQUEST_CODE);
-    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if( requestCode == Constants.REQUEST_QQ_SHARE){
+            Tencent.onActivityResultData(requestCode,resultCode,data,qqShareListener);
+        }
 
+        // 提取图片的绝对uri
+        String absuri = "";
+        if (resultCode == Activity.RESULT_OK) {
+            if (data != null && data.getData() != null) {
+                Uri uri = data.getData();// 根据返回的URI获取对应的SQLite信息
+                absuri = Util.getPath(this, uri);
+                System.out.println("imageURl:"+imageURI);
+            }
+        }
+        imageURI = absuri;
+
+        // 提取可以看的图片
         Bitmap img = null;
         if( requestCode == CARMEAR_REQUEST_CODE && resultCode==RESULT_OK){  // 从照相机返回
             Bundle bundle = data.getExtras();
@@ -214,38 +215,27 @@ public class MainActivity extends AppCompatActivity {
 
         if( img != null ){
             currentBitmap = img;
-            conventImage();
+            //conventImage();
         }
 
-        Tencent.onActivityResultData(requestCode, resultCode, data, uiListener);
-        if (requestCode == Constants.REQUEST_API) {
-            System.out.println("api back");
-            if (resultCode == Constants.REQUEST_QQ_SHARE || resultCode == Constants.REQUEST_QZONE_SHARE || resultCode == Constants.REQUEST_OLD_SHARE) {
-                Tencent.handleResultData(data, uiListener);
-            }
-        }
 
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    // 把照片
+    // 把照片??
     public void conventImage(){
         Bitmap bitmap = currentBitmap;
 
         // 解码图片，转成 jpeg 格式
         ByteArrayOutputStream s = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG,50,s);
-        //writeBitmapToFile("jpg.jpg",bitmap,50);
         byte[] b = s.toByteArray();
         String lastString= Base64.encodeToString(b, Base64.DEFAULT);
 
-        //writeStringToFile("jpg.txt",lastString);
-        //System.out.println("base64 size:"+lastString.length() );
 
         AsynNetUtils.post("http://10.66.4.114:9999",  lastString , new AsynNetUtils.Callback() {
             @Override
             public void onResponse(String response) {
-                //textView.setText(response);
                 // 解析json串
                 String images="",style="",msg="",date="",reason="";
                 textView.setText("receive ok.");
@@ -336,11 +326,19 @@ public class MainActivity extends AppCompatActivity {
         bm.setWidth(w);
         return b;
     }
-//---------------------
-//    作者：陌天恒
-//    来源：CSDN
-//    原文：https://blog.csdn.net/QUBUBING/article/details/51040338?utm_source=copy
-//    版权声明：本文为博主原创文章，转载请附上博文链接！
+    //打开相机选择图片
+    private void selecPicFromCarema(){
+        Intent it = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(it,CARMEAR_REQUEST_CODE);
+    }
+    //打开本地相册选择图片
+    private void selectPic(){
+        Intent intent=new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(intent, ALBUM_REQUEST_CODE);
+    }
+
 
 }
 

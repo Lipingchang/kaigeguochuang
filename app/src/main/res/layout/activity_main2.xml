@@ -55,8 +55,14 @@
         android:layout_marginTop="10dp"
          ></android.support.v4.view.ViewPager>
 
-
+    <TextView
+        android:id="@+id/textview"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@id/linear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
     <LinearLayout
+        android:id="@+id/linear"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:orientation="horizontal"
