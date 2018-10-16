@@ -60,12 +60,26 @@ public class MyImagePager {
         }
 
         View v = views.get(index);
-        LinearLayout layout = (LinearLayout) v.findViewById(R.id.loadinglayout);
+        View layout_view = (LinearLayout) v.findViewById(R.id.loadinglayout);
         ImageView im = (ImageView)v.findViewById(R.id.image);
         Bitmap black_bm = getGrayBitmap(bms.get(index));
 
         im.setImageBitmap(  black_bm );
-        layout.setVisibility(View.VISIBLE);
+
+        layout_view.setVisibility(View.VISIBLE);
+
+        // 设置等待层 的图片一样大小
+        int imgviewwidth = im.getWidth();
+        int black_bmwidth = black_bm.getWidth();
+        int imagewidth = black_bmwidth > imgviewwidth ? imgviewwidth : black_bmwidth;
+        int imageviewheight = (int)( black_bm.getHeight() * (imagewidth*1.0 / (black_bmwidth*1.0)) );
+
+
+        ViewGroup.LayoutParams imgparams = im.getLayoutParams();
+        imgparams.height =  imageviewheight;
+        imgparams.width = imagewidth;
+        layout_view.setLayoutParams(imgparams);
+
 
     }
     public void setLoaded(int index){
@@ -153,13 +167,11 @@ public class MyImagePager {
         // 设置可以看到 不是main的item
         viewPager.setClipChildren(false);
         viewPager.setOffscreenPageLimit(2);
-        viewPager.setPageMargin(-210);
+        viewPager.setPageMargin(-250);
 
         viewPager.setPageTransformer(true, new ViewPager.PageTransformer() {
             @Override
             public void transformPage(View page, float position) {
-                TextView t = (TextView) page.findViewById(R.id.textview);
-                TextView t2 = (TextView) page.findViewById(R.id.textview2);
 
                 if (position < 0 && position > -1) { // 最左边的view
                     page.setAlpha((float) ((1 + position) * 0.7 + 0.3));
@@ -179,8 +191,6 @@ public class MyImagePager {
                 }else if( position==0 ){
 
                 }
-
-
 
             }
         });

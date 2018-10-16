@@ -59,6 +59,8 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.wasabeef.blurry.Blurry;
+
 public class MainActivity extends AppCompatActivity {
 
     public static AppCompatActivity act;
@@ -69,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
     MyImagePager myImagePager;
 
     Bitmap currentBitmap;
+    ImageView bgview;
 
     static final int ALBUM_REQUEST_CODE = 1;
     static final int CARMEAR_REQUEST_CODE = 2;
@@ -100,26 +103,27 @@ public class MainActivity extends AppCompatActivity {
         viewPager = myImagePager.viewPager;
 
         textView = (TextView) findViewById(R.id.textview);
-
+        bgview = (ImageView)findViewById(R.id.bgimageview);
         album = (Button) findViewById(R.id.btn_from_album);
         album.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectPic();
+                Util.selectPic();
             }
         });
         Button carmea = (Button) findViewById(R.id.btn_from_carema);
         carmea.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selecPicFromCarema();
+                Util.selecPicFromCarema();
             }
         });
         Button test = (Button) findViewById(R.id.test);
         test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                shareQQ(imageURI);
+                //shareQQ(imageURI);
+                myImagePager.setLoading(1);
             }
         });
 
@@ -195,9 +199,7 @@ public class MainActivity extends AppCompatActivity {
         if( requestCode == CARMEAR_REQUEST_CODE && resultCode==RESULT_OK){  // 从照相机返回
             Bundle bundle = data.getExtras();
             Bitmap bitmap = (Bitmap) bundle.get("data");
-            //image.setImageBitmap(bitmap);
             img = bitmap;
-
         }else if( requestCode == ALBUM_REQUEST_CODE && resultCode == RESULT_OK ) {// 从相册返回
             Uri uri = data.getData();
             ContentResolver cr = this.getContentResolver();
@@ -214,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if( img != null ){
-            currentBitmap = img;
+            setCurrentImage(img);
             //conventImage();
         }
 
@@ -222,7 +224,28 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    // 把照片??
+    // 设置当前要转换的图片，背景是拉升之后毛玻璃话的图片，
+    public void setCurrentImage(Bitmap img){
+        currentBitmap = img;
+        int w,h,img_w,img_h;
+
+          w = bgview.getWidth();  h = bgview.getHeight();
+          img_w = img.getWidth();   img_h = img.getHeight();
+
+        float w_bei = (float)(w*1.0/img_w);
+        float h_bei = (float)(h*1.0/img_h);
+        float bei = w_bei<h_bei ? h_bei : w_bei;
+
+        // 放大
+        img =  Util.setImgSize(img,(int)(img_w*bei)+1 , (int)(img_h*bei)+1);
+        // 裁剪中间的
+        Bitmap center = Bitmap.createBitmap(img,(img.getWidth()-w)/2,(img.getHeight()-h)/2,w,h);
+        // 模糊化 放上去
+        Blurry.with(act).radius(30).from(center).into( bgview);
+
+    }
+
+    // 把照片 发送出去
     public void conventImage(){
         Bitmap bitmap = currentBitmap;
 
@@ -269,75 +292,14 @@ public class MainActivity extends AppCompatActivity {
                 //textView.setText(images);
 
                 // 把json串中的 image转成bitmap 然后展示
-                Bitmap bt = base642Bitmap(images);
+                Bitmap bt = Util.base642Bitmap(images);
 //                image.setImageBitmap(bt);
 
             }
 
         });
     }
-    public void setAllBtnToCommon(){
-        monet.setBackground(getResources().getDrawable (  R.drawable.common, null ) );
-        cezanne.setBackground(getResources().getDrawable (  R.drawable.common, null ) );
-        ukiyoe.setBackground(getResources().getDrawable (  R.drawable.common, null ) );
-        vangogh.setBackground(getResources().getDrawable (  R.drawable.common, null ) );
-    }
-    public static void writeBitmapToFile(String filePath, Bitmap b, int quality) {
-        try {
-            File desFile = new File(filePath);
-            FileOutputStream fos = act.openFileOutput(filePath,Context.MODE_PRIVATE);
 
-
-            BufferedOutputStream bos = new BufferedOutputStream(fos);
-            b.compress(Bitmap.CompressFormat.JPEG, quality, bos);
-            bos.flush();
-            bos.close();
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    public static void writeStringToFile(String filePath, String b) {
-        try {
-            File desFile = new File(filePath);
-            FileOutputStream fos = act.openFileOutput(filePath,Context.MODE_PRIVATE);
-
-            Writer writer = new OutputStreamWriter(fos);
-
-            writer.write(b.toCharArray());
-
-            writer.flush();
-            writer.close();
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    public static Bitmap base642Bitmap(String base){
-        byte[] decodedString = Base64.decode(base, Base64.DEFAULT);
-        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-        return decodedByte;
-    }
-
-
-    public static Bitmap getThumb(Bitmap bm,int w,int h){
-        Bitmap b = Bitmap.createBitmap(bm);
-         bm.setHeight(h);
-        bm.setWidth(w);
-        return b;
-    }
-    //打开相机选择图片
-    private void selecPicFromCarema(){
-        Intent it = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(it,CARMEAR_REQUEST_CODE);
-    }
-    //打开本地相册选择图片
-    private void selectPic(){
-        Intent intent=new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(intent, ALBUM_REQUEST_CODE);
-    }
 
 
 }

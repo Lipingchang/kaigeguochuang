@@ -1,13 +1,17 @@
 package com.example.httptesttest;
 
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -25,17 +29,20 @@ import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -500,11 +507,9 @@ public class Util {
      *
      * @param activity
      * @param message
-     * @param logLevel
      *            填d, w, e分别代表debug, warn, error; 默认是debug
      */
-    public static final void toastMessage(final Activity activity,
-                                          final String message) {
+    public static final void toastMessage(final Activity activity,final String message) {
         toastMessage(activity, message, null);
     }
 
@@ -754,4 +759,86 @@ public class Util {
             }
         };
     }
+
+//    public static void setAllBtnToCommon(){
+//        monet.setBackground(getResources().getDrawable (  R.drawable.common, null ) );
+//        cezanne.setBackground(getResources().getDrawable (  R.drawable.common, null ) );
+//        ukiyoe.setBackground(getResources().getDrawable (  R.drawable.common, null ) );
+//        vangogh.setBackground(getResources().getDrawable (  R.drawable.common, null ) );
+//    }
+    public static void writeBitmapToFile(String filePath, Bitmap b, int quality) {
+        try {
+            File desFile = new File(filePath);
+            FileOutputStream fos = MainActivity.act.openFileOutput(filePath,Context.MODE_PRIVATE);
+
+
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            b.compress(Bitmap.CompressFormat.JPEG, quality, bos);
+            bos.flush();
+            bos.close();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public static void writeStringToFile(String filePath, String b) {
+        try {
+            File desFile = new File(filePath);
+            FileOutputStream fos = MainActivity.act.openFileOutput(filePath,Context.MODE_PRIVATE);
+
+            Writer writer = new OutputStreamWriter(fos);
+
+            writer.write(b.toCharArray());
+
+            writer.flush();
+            writer.close();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public static Bitmap base642Bitmap(String base){
+        byte[] decodedString = Base64.decode(base, Base64.DEFAULT);
+        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        return decodedByte;
+    }
+
+
+    public static Bitmap getThumb(Bitmap bm,int w,int h){
+        Bitmap b = Bitmap.createBitmap(bm);
+        bm.setHeight(h);
+        bm.setWidth(w);
+        return b;
+    }
+    //打开相机选择图片
+    public static void selecPicFromCarema(){
+        Intent it = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        MainActivity.act.startActivityForResult(it,MainActivity.CARMEAR_REQUEST_CODE);
+    }
+    //打开本地相册选择图片
+    public static void selectPic(){
+        Intent intent=new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        MainActivity.act.startActivityForResult(intent, MainActivity.ALBUM_REQUEST_CODE);
+    }
+    public static Bitmap setImgSize(Bitmap bm, int newWidth ,int newHeight){
+        // 获得图片的宽高.
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        // 计算缩放比例.
+        float scaleWidth = ((float) newWidth) / width;
+        float scaleHeight = ((float) newHeight) / height;
+        // 取得想要缩放的matrix参数.
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleWidth, scaleHeight);
+        // 得到新的图片.
+        Bitmap newbm = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, true);
+        return newbm;
+    }
+//---------------------
+//    作者：圣西罗的红与黑v
+//    来源：CSDN
+//    原文：https://blog.csdn.net/GXL_1899/article/details/77449908?utm_source=copy
+//    版权声明：本文为博主原创文章，转载请附上博文链接！
 }
