@@ -78,27 +78,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-
         setContentView(R.layout.activity_main2);
         act = this;
-
-//        ukiyoe.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                ukiyoe.setText("设置等待");
-//                myImagePager.setLoading(1);
-//            }
-//        });
-//        vangogh.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                //  更换viewpager中的图片
-//                vangogh.setText("改变图片&完成加载");
-//                myImagePager.setImage(1,BitmapFactory.decodeResource(getResources(),R.drawable.viewpage666) );
-//                myImagePager.setLoaded(1);
-//            }
-//        });
 
         // 先把要展示的图片放到 list 中
         List<Bitmap> views = new ArrayList<>();
@@ -109,35 +90,6 @@ public class MainActivity extends AppCompatActivity {
         // 获取设置好的viewPager
         myImagePager = MyImagePager.getPager(this,views,R.id.viewpager);
         viewPager =  myImagePager.viewPager;
-
-        //设置 滚动窗口上面的 滑动条
-//        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-//            @Override
-//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-//                View view = myImagePager.views.get(position);  // @@@ Get target page reference
-//                view.bringToFront();
-//                System.out.println("2:"+position);
-//            }
-//
-//            @Override
-//            public void onPageSelected(int position) {
-//                View view = myImagePager.views.get(position);  // @@@ Get target page reference
-//                view.bringToFront();
-//                System.out.println(position);
-//
-//                for( int i = 0; i<toplist.length; i++){
-//                    TextView t = (TextView)findViewById(toplist[i]);
-//                    t.setBackgroundColor(0xffffffff);
-//                }
-//                TextView t = (TextView)findViewById(toplist[position]);
-//                t.setBackgroundColor(0xff00ff00);
-//             }
-//
-//            @Override
-//            public void onPageScrollStateChanged(int state) {
-//
-//            }
-//        });
 
 
 
@@ -159,12 +111,28 @@ public class MainActivity extends AppCompatActivity {
         test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                shareImgToQQ(Uri.parse("android.resource://com.example.httptesttest/"+R.drawable.viewpage666).toString());
+                shareImgToQQ("android.resource://your.package.here/drawable/image_name");
+
+                //shareImgToQQ(Uri.parse("android.resource://com.example.httptesttest/"+R.drawable.viewpage666).toString());
             }
         });
-        mTencent = Tencent.createInstance("your APP ID",getApplicationContext());
+
+        // qq分享回调
+        mTencent = Tencent.createInstance("1107906730",getApplicationContext());
         uiListener = new MyIUiListener();
 
+    }
+    public void share(View view)
+    {
+        final Bundle params = new Bundle();
+        params.putInt(QQShare.SHARE_TO_QQ_KEY_TYPE, QQShare.SHARE_TO_QQ_TYPE_DEFAULT);
+        params.putString(QQShare.SHARE_TO_QQ_TITLE, "要分享的标题");
+        params.putString(QQShare.SHARE_TO_QQ_SUMMARY,  "要分享的摘要");
+        params.putString(QQShare.SHARE_TO_QQ_TARGET_URL,  "http://www.qq.com/news/1.html");
+        params.putString(QQShare.SHARE_TO_QQ_IMAGE_URL,"http://imgcache.qq.com/qzone/space_item/pre/0/66768.gif");
+        params.putString(QQShare.SHARE_TO_QQ_APP_NAME,  "测试应用222222");
+        params.putInt(QQShare.SHARE_TO_QQ_EXT_INT, 1);
+        mTencent.shareToQQ(MainActivity.this, params, new MyIUiListener());
     }
 
     class MyIUiListener implements IUiListener {
@@ -251,6 +219,7 @@ public class MainActivity extends AppCompatActivity {
 
         Tencent.onActivityResultData(requestCode, resultCode, data, uiListener);
         if (requestCode == Constants.REQUEST_API) {
+            System.out.println("api back");
             if (resultCode == Constants.REQUEST_QQ_SHARE || resultCode == Constants.REQUEST_QZONE_SHARE || resultCode == Constants.REQUEST_OLD_SHARE) {
                 Tencent.handleResultData(data, uiListener);
             }
