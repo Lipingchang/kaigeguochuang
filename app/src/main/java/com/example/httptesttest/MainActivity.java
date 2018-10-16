@@ -12,6 +12,8 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -28,6 +30,12 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.tencent.connect.common.Constants;
+import com.tencent.connect.share.QQShare;
+import com.tencent.tauth.IUiListener;
+import com.tencent.tauth.Tencent;
+import com.tencent.tauth.UiError;
+
 import org.w3c.dom.Text;
 
 import java.io.BufferedOutputStream;
@@ -42,6 +50,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.Writer;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
     int[]  imagelist = {R.drawable.viewpage1,R.drawable.viewpage2,R.drawable.viewpage3,R.drawable.viewpage4,R.drawable.viewpage5,R.drawable.viewpage6};
     int[] toplist = {R.id.top_1,R.id.top_2,R.id.top_3,R.id.top_4,R.id.top_5,R.id.top_6};
 
+    MyIUiListener uiListener;
+    Tencent mTencent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -148,11 +159,53 @@ public class MainActivity extends AppCompatActivity {
         test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                shareImgToQQ(Uri.parse("android.resource://com.example.httptesttest/"+R.drawable.viewpage666).toString());
             }
         });
+        mTencent = Tencent.createInstance("your APP ID",getApplicationContext());
+        uiListener = new MyIUiListener();
 
     }
+
+    class MyIUiListener implements IUiListener {
+        @Override
+        public void onComplete(Object o) {
+            // 操作成功
+            System.out.println("complete");
+        }
+        @Override
+        public void onError(UiError uiError) {
+            // 分享异常
+            System.out.println("error");
+
+        }
+        @Override
+        public void onCancel() {
+            // 取消分享
+            System.out.println("cancel");
+
+        }
+    }
+
+    private Bundle params;
+    private void shareImgToQQ(String imgUrl) {
+        params = new Bundle();
+        params.putInt(QQShare.SHARE_TO_QQ_KEY_TYPE, QQShare.SHARE_TO_QQ_TYPE_IMAGE);// 设置分享类型为纯图片分享
+        params.putString(QQShare.SHARE_TO_QQ_IMAGE_LOCAL_URL, imgUrl);// 需要分享的本地图片URL
+        // 分享操作要在主线程中完成
+        new Handler(act.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                mTencent.shareToQQ(act, params, uiListener);
+            }
+        });
+    }
+
+//
+//    作者：紫豪
+//    链接：https://www.jianshu.com/p/4e2184649545
+//    來源：简书
+//    简书著作权归作者所有，任何形式的转载都请联系作者获得授权并注明出处。
 
     //打开相机选择图片
     private void selecPicFromCarema(){
@@ -194,6 +247,13 @@ public class MainActivity extends AppCompatActivity {
         if( img != null ){
             currentBitmap = img;
             conventImage();
+        }
+
+        Tencent.onActivityResultData(requestCode, resultCode, data, uiListener);
+        if (requestCode == Constants.REQUEST_API) {
+            if (resultCode == Constants.REQUEST_QQ_SHARE || resultCode == Constants.REQUEST_QZONE_SHARE || resultCode == Constants.REQUEST_OLD_SHARE) {
+                Tencent.handleResultData(data, uiListener);
+            }
         }
 
         super.onActivityResult(requestCode, resultCode, data);
