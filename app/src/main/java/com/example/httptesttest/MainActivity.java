@@ -59,6 +59,8 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.wasabeef.blurry.Blurry;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -200,8 +202,6 @@ public class MainActivity extends AppCompatActivity {
         if( (requestCode == CARMEAR_REQUEST_CODE || requestCode==ALBUM_REQUEST_CODE )&& resultCode==RESULT_OK){  // 从照相机返回
             Uri uri = requestCode==CARMEAR_REQUEST_CODE ? savedPhoto : data.getData();
             int r = Util.readPictureDegree(Util.getPath(act,uri));
-            System.out.println("sb not 3:"+r);
-
             ContentResolver cr = this.getContentResolver();
             try {
                 Bitmap bitmap = BitmapFactory.decodeStream(cr.openInputStream(uri));
@@ -212,11 +212,6 @@ public class MainActivity extends AppCompatActivity {
 
             img =  Util.rotaingImageView(r,img);
 
-
-        }else{
-            //操作错误或没有选择图片
-            Log.d("MainActivity","requestCode:"+requestCode+",resultCode:"+resultCode);
-            Log.i("MainActivtiy", "operation error");
         }
 
         if( img != null ){
@@ -245,10 +240,9 @@ public class MainActivity extends AppCompatActivity {
         // 裁剪中间的
         Bitmap center = Bitmap.createBitmap(img,(img.getWidth()-w)/2,(img.getHeight()-h)/2,w,h);
         // 模糊化 放上去
-        //Blurry.with(act).radius(30).from(center).into( bgview);
+        Blurry.with(act).radius(30).from(center).into( bgview);
 
-        // 计算viewpager 中的image的大小
-        //if( img_w < )
+
         //更新viewpager
         for( int i = 0; i<imagelist.length; i++){
             myImagePager.setImage(i,currentBitmap);

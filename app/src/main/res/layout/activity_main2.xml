@@ -8,7 +8,6 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 <ImageView
-
     android:adjustViewBounds="true"
     android:scaleType="fitXY"
     android:id="@+id/bgimageview"
