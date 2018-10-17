@@ -59,8 +59,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import jp.wasabeef.blurry.Blurry;
-
 
 public class MainActivity extends AppCompatActivity {
 
@@ -240,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
         // 裁剪中间的
         Bitmap center = Bitmap.createBitmap(img,(img.getWidth()-w)/2,(img.getHeight()-h)/2,w,h);
         // 模糊化 放上去
-        Blurry.with(act).radius(30).from(center).into( bgview);
+        jp.wasabeef.blurry.Blurry.with(act).radius(30).from(center).into( bgview);
 
 
         //更新viewpager
@@ -248,7 +246,6 @@ public class MainActivity extends AppCompatActivity {
             myImagePager.setImage(i,currentBitmap);
         }
         System.out.printf("w%d h%d\n",currentBitmap.getWidth(),currentBitmap.getHeight());
-
     }
 
     // 把照片 发送出去
