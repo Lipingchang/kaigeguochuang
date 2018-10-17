@@ -35,10 +35,15 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.RectF;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
@@ -46,10 +51,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.tencent.connect.share.QQShare;
 import com.tencent.tauth.IUiListener;
 import com.tencent.tauth.UiError;
+
+import jp.wasabeef.glide.transformations.CropTransformation;
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 public class Util {
 
@@ -889,6 +901,75 @@ public class Util {
         return newbm;
     }
 
+    //发送QQ分享
+    public static void shareQQ(String uri,   final IUiListener qqShareListener) {
+        final Bundle params = new Bundle();
+        params.putString( QQShare.SHARE_TO_QQ_IMAGE_LOCAL_URL, uri);
+        params.putString(QQShare.SHARE_TO_QQ_APP_NAME, "appnamenamename");
+        params.putInt(QQShare.SHARE_TO_QQ_KEY_TYPE, QQShare.SHARE_TO_QQ_TYPE_IMAGE);
+        params.putInt(QQShare.SHARE_TO_QQ_EXT_INT, 0x00); //0x00
+        ThreadManager.getMainHandler().post(new Runnable() {
+
+            @Override
+            public void run() {
+                if (null != MainActivity.mTencent) {
+                    MainActivity.mTencent.shareToQQ(MainActivity.act, params, qqShareListener);
+                }
+            }
+        });
+
+    }
+    //保存文件到指定路径
+    public static Uri saveImageToGallery(Context context, Bitmap bmp) {
+        // 首先保存图片
+        String storePath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "dearxy_tmp";
+        File appDir = new File(storePath);
+        if (!appDir.exists()) {
+            appDir.mkdir();
+        }
+        String fileName = System.currentTimeMillis() + ".xjpg";
+        File file = new File(appDir, fileName);
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            //通过io流的方式来压缩保存图片
+            boolean isSuccess = bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            fos.flush();
+            fos.close();
+
+            //把文件插入到系统图库
+            //MediaStore.Images.Media.insertImage(context.getContentResolver(), file.getAbsolutePath(), fileName, null);
+
+            //保存图片后发送广播通知更新数据库
+            Uri uri = Uri.fromFile(file);
+            context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
+            if (isSuccess) {
+                return uri;
+            } else {
+                return null;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static int calculateInSampleSize(BitmapFactory.Options options,
+                                            int reqWidth, int reqHeight) {
+        // 源图片的高度和宽度
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+        if (height > reqHeight || width > reqWidth) {
+            // 计算出实际宽高和目标宽高的比率
+            final int heightRatio = Math.round((float) height / (float) reqHeight);
+            final int widthRatio = Math.round((float) width / (float) reqWidth);
+            // 选择宽和高中最小的比率作为inSampleSize的值，这样可以保证最终图片的宽和高
+            // 一定都会大于等于目标的宽和高。
+            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
+        }
+        return inSampleSize;
+    }
+
     public static int readPictureDegree(String path) {
         int degree = 0;
         try {
@@ -931,6 +1012,11 @@ public class Util {
             bitmap.recycle();
         }
         return returnBm;
+    }
+    public static void imageCorners(Context context, Bitmap bitmap, ImageView view){
+        Glide.with(context).load(bitmap).apply(RequestOptions.bitmapTransform(new RoundedCornersTransformation(45, 0,
+                RoundedCornersTransformation.CornerType.BOTTOM))).into(view);
+
     }
 
 }

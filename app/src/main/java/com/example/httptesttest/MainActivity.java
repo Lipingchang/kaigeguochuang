@@ -14,11 +14,14 @@ import android.graphics.Canvas;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -34,6 +37,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
 import com.tencent.connect.common.Constants;
 import com.tencent.connect.share.QQShare;
 import com.tencent.tauth.IUiListener;
@@ -58,6 +66,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -84,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     static Tencent mTencent;
-    IUiListener qqShareListener;
+    static IUiListener qqShareListener;
     String imageURI;
 
     @Override
@@ -117,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Util.selecPicFromCarema();
+                //myImagePager.setLoaded(1);
             }
         });
         Button test = (Button) findViewById(R.id.test);
@@ -157,29 +168,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    //发送QQ分享
-    public void shareQQ(String uri) {
-        final Bundle params = new Bundle();
-        params.putString( QQShare.SHARE_TO_QQ_IMAGE_LOCAL_URL, uri);
-        params.putString(QQShare.SHARE_TO_QQ_APP_NAME, "appnamenamename");
-        params.putInt(QQShare.SHARE_TO_QQ_KEY_TYPE, QQShare.SHARE_TO_QQ_TYPE_IMAGE);
-        params.putInt(QQShare.SHARE_TO_QQ_EXT_INT, 0x00); //0x00
-        ThreadManager.getMainHandler().post(new Runnable() {
 
-            @Override
-            public void run() {
-                if (null != MainActivity.mTencent) {
-                    MainActivity.mTencent.shareToQQ(act, params, qqShareListener);
-                }
-            }
-        });
-
-    }
 
 
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
         if( requestCode == Constants.REQUEST_QQ_SHARE){
             Tencent.onActivityResultData(requestCode,resultCode,data,qqShareListener);
         }
@@ -202,7 +197,18 @@ public class MainActivity extends AppCompatActivity {
             int r = Util.readPictureDegree(Util.getPath(act,uri));
             ContentResolver cr = this.getContentResolver();
             try {
-                Bitmap bitmap = BitmapFactory.decodeStream(cr.openInputStream(uri));
+                // 把图片压缩下
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeStream(cr.openInputStream(uri),null,options);
+
+                 // 调用上面定义的方法计算inSampleSize值
+                options.inSampleSize = Util.calculateInSampleSize(options, 500, 500);
+                // 使用获取到的inSampleSize值再次解析图片
+                options.inJustDecodeBounds = false;
+                Bitmap bitmap = BitmapFactory.decodeStream(cr.openInputStream(uri), null, options);
+
+
                 img = bitmap;
             } catch (Exception e) {
                 Log.e("Exception", e.getMessage(),e);
@@ -239,11 +245,19 @@ public class MainActivity extends AppCompatActivity {
         Bitmap center = Bitmap.createBitmap(img,(img.getWidth()-w)/2,(img.getHeight()-h)/2,w,h);
         // 模糊化 放上去
         jp.wasabeef.blurry.Blurry.with(act).radius(30).from(center).into( bgview);
-
+        // TODO 把状态栏的颜色调整成和 图片主色调一样
 
         //更新viewpager
         for( int i = 0; i<imagelist.length; i++){
+            final Bitmap bitmapTar;
             myImagePager.setImage(i,currentBitmap);
+            Glide.with(act)
+                    .load(currentBitmap)
+                    .apply(RequestOptions.bitmapTransform(new RoundedCornersTransformation((int)(currentBitmap.getWidth()*0.08), 0,RoundedCornersTransformation.CornerType.ALL)))
+                    .into(myImagePager.getImageView(i));
+
+
+           // myImagePager.setImage(i,currentBitmap);
         }
         System.out.printf("w%d h%d\n",currentBitmap.getWidth(),currentBitmap.getHeight());
     }
