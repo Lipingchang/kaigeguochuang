@@ -103,11 +103,13 @@
     </LinearLayout>
 
     <Button
+        android:background="@drawable/album_button"
         android:id="@+id/btn_from_album"
         android:text="相册导入"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
     <Button
+        android:background="@drawable/carmera_button"
         android:id="@+id/btn_from_carema"
         android:text="相机导入"
         android:layout_width="wrap_content"

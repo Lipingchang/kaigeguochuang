@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main2);
         act = this;
 
+
         // 先把要展示的图片放到 list 中
         List<Bitmap> views = new ArrayList<>();
         for (int i = 0; i < imagelist.length; i++) {
@@ -130,20 +131,25 @@ public class MainActivity extends AppCompatActivity {
                 //myImagePager.setLoaded(1);
             }
         });
-        Button test = (Button) findViewById(R.id.test);
-        test.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //shareQQ(imageURI);
-                myImagePager.setLoading(1);
-            }
-        });
+//        Button test = (Button) findViewById(R.id.test);
+//        test.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                //shareQQ(imageURI);
+//                myImagePager.setLoading(1);
+//            }
+//        });
 
 
         mTencent = Tencent.createInstance("1107906730", getApplicationContext()); // 设置和QQ的分享的实例
         qqShareListener = Util.getQQListener(act); // 设置成功分享后的回调
 
         Util.getPermission(act);// 收集权限
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
     }
 
     //收集权限后的回调
@@ -227,9 +233,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    // 设置当前要转换的图片，背景是拉升之后毛玻璃话的图片，
-    public void setCurrentImage(Bitmap img){
-        currentBitmap = img;
+    public  void setBlurryBackground(Bitmap img){
         int w,h,img_w,img_h;
 
         w = bgview.getWidth();  h = bgview.getHeight();
@@ -246,6 +250,12 @@ public class MainActivity extends AppCompatActivity {
         // 模糊化 放上去
         jp.wasabeef.blurry.Blurry.with(act).radius(30).from(center).into( bgview);
         // TODO 把状态栏的颜色调整成和 图片主色调一样
+    }
+    // 设置当前要转换的图片，背景是拉升之后毛玻璃话的图片，
+    public void setCurrentImage(Bitmap img){
+        currentBitmap = img;
+
+        setBlurryBackground(img);
 
         //更新viewpager
         for( int i = 0; i<imagelist.length; i++){
