@@ -72,30 +72,27 @@ import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static Uri savedPhoto;
-
-    public static AppCompatActivity act;
-    TextView textView ;
-    Button button;
-
+    // 待初始化的变量
+    Button album_btn,camera_btn;
+    ImageView bg_view;
     ViewPager viewPager;
     MyImagePager myImagePager;
-
-    Bitmap currentBitmap;
-    ImageView bgview;
-
-    static final int ALBUM_REQUEST_CODE = 1;
-    static final int CARMEAR_REQUEST_CODE = 2;
-    static final int REQUEST_PERMISSION_CODE = 0;
-
-    Button monet, cezanne, ukiyoe, vangogh, album;
-    public static String style = "";
-    int[] imagelist = {R.drawable.viewpage1, R.drawable.viewpage2, R.drawable.viewpage3, R.drawable.viewpage4, R.drawable.viewpage5, R.drawable.viewpage6};
-
-
     static Tencent mTencent;
     static IUiListener qqShareListener;
+    public static AppCompatActivity act;
+
+
+    //全局分享的??
+    public static Uri savedPhoto; // 相机照片缓存文件
+    public static Uri currentPhotoUri; // 要发送给后台的照片的uri
+
+    Bitmap currentBitmap;
+    public static String style = "";
     String imageURI;
+
+
+    int[] imagelist = {R.drawable.viewpage1, R.drawable.viewpage2, R.drawable.viewpage3, R.drawable.viewpage4, R.drawable.viewpage5, R.drawable.viewpage6};
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,60 +100,21 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main2);
         act = this;
 
+        InitViews();
 
-        // 先把要展示的图片放到 list 中
-        List<Bitmap> views = new ArrayList<>();
-        for (int i = 0; i < imagelist.length; i++) {
-            Bitmap bm = BitmapFactory.decodeResource(getResources(), imagelist[i]);
-            views.add(bm);
-        }
-        // 获取设置好的viewPager
-        myImagePager = MyImagePager.getPager(this, views, R.id.viewpager);
-        viewPager = myImagePager.viewPager;
-
-        textView = (TextView) findViewById(R.id.textview);
-        bgview = (ImageView)findViewById(R.id.bgimageview);
-        album = (Button) findViewById(R.id.btn_from_album);
-        album.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Util.selectPic();
-            }
-        });
-        Button carmea = (Button) findViewById(R.id.btn_from_carema);
-        carmea.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Util.selecPicFromCarema();
-                //myImagePager.setLoaded(1);
-            }
-        });
-//        Button test = (Button) findViewById(R.id.test);
-//        test.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                //shareQQ(imageURI);
-//                myImagePager.setLoading(1);
-//            }
-//        });
-
-
+        // 设置QQ分享
         mTencent = Tencent.createInstance("1107906730", getApplicationContext()); // 设置和QQ的分享的实例
         qqShareListener = Util.getQQListener(act); // 设置成功分享后的回调
 
         Util.getPermission(act);// 收集权限
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
 
     //收集权限后的回调
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
-            case REQUEST_PERMISSION_CODE: {
+            case Util.REQUEST_PERMISSION_CODE: {
                 for (int i = 0; i < permissions.length; i++) {
                     if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                         System.out.println("Permissions --> " + "Permission Granted: " + permissions[i]);
@@ -173,70 +131,31 @@ public class MainActivity extends AppCompatActivity {
         // TODO 权限没收到
     }
 
-
-
-
-
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
         if( requestCode == Constants.REQUEST_QQ_SHARE){
             Tencent.onActivityResultData(requestCode,resultCode,data,qqShareListener);
         }
 
-        // 提取图片的绝对uri
-        String absuri = "";
-        if (resultCode == Activity.RESULT_OK) {
-            if (data != null && data.getData() != null) {
-                Uri uri = data.getData();// 根据返回的URI获取对应的SQLite信息
-                absuri = Util.getPath(this, uri);
-                System.out.println("imageURl:"+imageURI);
-            }
-        }
-        imageURI = absuri;
-
-        // 提取可以看的图片
+        // 提取图片的绝对uri 提取图片到bitmap
         Bitmap img = null;
-        if( (requestCode == CARMEAR_REQUEST_CODE || requestCode==ALBUM_REQUEST_CODE )&& resultCode==RESULT_OK){  // 从照相机返回
-            Uri uri = requestCode==CARMEAR_REQUEST_CODE ? savedPhoto : data.getData();
-            int r = Util.readPictureDegree(Util.getPath(act,uri));
-            ContentResolver cr = this.getContentResolver();
-            try {
-                // 把图片压缩下
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inJustDecodeBounds = true;
-                BitmapFactory.decodeStream(cr.openInputStream(uri),null,options);
-
-                 // 调用上面定义的方法计算inSampleSize值
-                options.inSampleSize = Util.calculateInSampleSize(options, 500, 500);
-                // 使用获取到的inSampleSize值再次解析图片
-                options.inJustDecodeBounds = false;
-                Bitmap bitmap = BitmapFactory.decodeStream(cr.openInputStream(uri), null, options);
-
-
-                img = bitmap;
-            } catch (Exception e) {
-                Log.e("Exception", e.getMessage(),e);
-            }
-
-            img =  Util.rotaingImageView(r,img);
-
+        if( (requestCode == Util.CAMERA_REQUEST_CODE || requestCode==Util.ALBUM_REQUEST_CODE )&& resultCode==RESULT_OK){
+            // 照相机返回的照片已经保存在savedPhoto上了,从相册返回的照片的信息还需要从data中获取
+            currentPhotoUri= requestCode==Util.CAMERA_REQUEST_CODE ? savedPhoto : data.getData();
+            img = Util.getCompassImage(act,currentPhotoUri);
         }
 
         if( img != null ){
             setCurrentImage(img);
             //conventImage();
         }
-
-
         super.onActivityResult(requestCode, resultCode, data);
     }
 
     public  void setBlurryBackground(Bitmap img){
         int w,h,img_w,img_h;
 
-        w = bgview.getWidth();  h = bgview.getHeight();
+        w = bg_view.getWidth();  h = bg_view.getHeight();
         img_w = img.getWidth();   img_h = img.getHeight();
 
         float w_bei = (float)(w*1.0/img_w);
@@ -248,31 +167,34 @@ public class MainActivity extends AppCompatActivity {
         // 裁剪中间的
         Bitmap center = Bitmap.createBitmap(img,(img.getWidth()-w)/2,(img.getHeight()-h)/2,w,h);
         // 模糊化 放上去
-        jp.wasabeef.blurry.Blurry.with(act).radius(30).from(center).into( bgview);
+        jp.wasabeef.blurry.Blurry.with(act).radius(30).from(center).into( bg_view );
         // TODO 把状态栏的颜色调整成和 图片主色调一样
     }
+
     // 设置当前要转换的图片，背景是拉升之后毛玻璃话的图片，
     public void setCurrentImage(Bitmap img){
         currentBitmap = img;
 
         setBlurryBackground(img);
-
-        //更新viewpager
+        //更新viewpager 并且设置在载入中
         for( int i = 0; i<imagelist.length; i++){
             final Bitmap bitmapTar;
             myImagePager.setImage(i,currentBitmap);
             Glide.with(act)
                     .load(currentBitmap)
-                    .apply(RequestOptions.bitmapTransform(new RoundedCornersTransformation((int)(currentBitmap.getWidth()*0.08), 0,RoundedCornersTransformation.CornerType.ALL)))
+                    .apply(
+                            RequestOptions.bitmapTransform(
+                                    new RoundedCornersTransformation(
+                                            (int)(currentBitmap.getWidth()*0.08),
+                                            0,
+                                            RoundedCornersTransformation.CornerType.ALL)
+                            ))
                     .into(myImagePager.getImageView(i));
-
-
-           // myImagePager.setImage(i,currentBitmap);
+            myImagePager.setLoading(i);
         }
-        System.out.printf("w%d h%d\n",currentBitmap.getWidth(),currentBitmap.getHeight());
     }
 
-    // 把照片 发送出去
+    // 把照片 发送出去 !!!!!!!!未改动
     public void conventImage(){
         Bitmap bitmap = currentBitmap;
 
@@ -288,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(String response) {
                 // 解析json串
                 String images="",style="",msg="",date="",reason="";
-                textView.setText("receive ok.");
+//                textView.setText("receive ok.");
                 try {
                     JsonReader reader = new JsonReader(new StringReader(response));
 
@@ -325,6 +247,42 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+    }
+
+    void InitViews(){
+        // 先把要展示的图片放到 views 中
+        List<Bitmap> views = new ArrayList<>();
+        for (int i = 0; i < imagelist.length; i++) {
+            Bitmap bm = BitmapFactory.decodeResource(getResources(), imagelist[i]);
+            views.add(bm);
+        }
+        // 获取设置好的viewPager
+        myImagePager = MyImagePager.getPager(this, views, R.id.viewpager);
+        viewPager = myImagePager.viewPager;
+
+        // 设置两个按钮
+        album_btn = (Button) findViewById(R.id.btn_from_album);
+        album_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Util.selectPic();
+            }
+        });
+        camera_btn = (Button) findViewById(R.id.btn_from_carema);
+        camera_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Util.selecPicFromCarema();
+            }
+        });
+
+        // 设置背景
+        bg_view = (ImageView)findViewById(R.id.bgimageview);
+        Resources resources = this.getResources();
+        Uri uri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + resources.getResourcePackageName(R.drawable.welcome) + '/' + resources.getResourceTypeName(R.drawable.welcome) + '/' + resources.getResourceEntryName(R.drawable.welcome) );
+        Bitmap center = Util.getCompassImage(this, uri);
+        jp.wasabeef.blurry.Blurry.with(act).radius(10).from(center).into( bg_view );
+
     }
 
 

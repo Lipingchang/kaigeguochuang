@@ -26,6 +26,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -739,6 +740,7 @@ public class Util {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
 
+    public static final int REQUEST_PERMISSION_CODE = 100;
     public static void getPermission(Activity act){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
@@ -756,7 +758,7 @@ public class Util {
             } else { }
 
             if (!permissions.isEmpty()) {
-                act.requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE}, MainActivity.REQUEST_PERMISSION_CODE);
+                act.requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE}, REQUEST_PERMISSION_CODE);
             }
         }
     }
@@ -828,24 +830,23 @@ public class Util {
         bm.setWidth(w);
         return b;
     }
-    //打开相机选择图片
+
+    // 常量
+    public static final int ALBUM_REQUEST_CODE = 200;
+    public static final int CAMERA_REQUEST_CODE = 300;
     public static void selecPicFromCarema(){
         Intent it = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
 
-        String filename = "hhh"+System.currentTimeMillis()+".jpg";
+        String filename = "gandemo"+System.currentTimeMillis()+".jpg";
         File cameraFile = new File(getPhotoDir().getAbsolutePath()+filename);
 
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(cameraFile));
-        MainActivity.act.startActivityForResult(intent, MainActivity.CARMEAR_REQUEST_CODE);
-        System.out.println("22:"+cameraFile.getAbsolutePath());
+        MainActivity.act.startActivityForResult(intent, CAMERA_REQUEST_CODE);
 
         MainActivity.savedPhoto = Uri.fromFile(cameraFile);
-
-
-        //MainActivity.act.startActivityForResult(it,MainActivity.CARMEAR_REQUEST_CODE);
     }
     private static File getPhotoDir(){
         File storDirPrivate = null;
@@ -884,7 +885,7 @@ public class Util {
         Intent intent=new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        MainActivity.act.startActivityForResult(intent, MainActivity.ALBUM_REQUEST_CODE);
+        MainActivity.act.startActivityForResult(intent, ALBUM_REQUEST_CODE);
     }
     public static Bitmap setImgSize(Bitmap bm, int newWidth ,int newHeight){
         // 获得图片的宽高.
@@ -969,7 +970,34 @@ public class Util {
         }
         return inSampleSize;
     }
+    public static Bitmap getCompassImage(Context context,Uri uri){
+        Bitmap img=null;
+        ContentResolver cr = context.getContentResolver();
+        try {
+            // 把图片压缩下
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(cr.openInputStream(uri),null,options);
 
+            // 调用上面定义的方法计算inSampleSize值
+            options.inSampleSize = Util.calculateInSampleSize(options, 400, 400);
+            // 使用获取到的inSampleSize值再次解析图片
+            options.inJustDecodeBounds = false;
+            Bitmap bitmap = BitmapFactory.decodeStream(cr.openInputStream(uri), null, options);
+
+            img = bitmap;
+
+            // 小米三星拍照是有过旋转的
+            int r = Util.readPictureDegree(Util.getPath(context,uri));
+            img =  Util.rotaingImageView(r,img);
+        } catch (Exception e) {
+            Log.e("Exception", e.getMessage(),e);
+        }
+
+
+
+        return  img;
+    }
     public static int readPictureDegree(String path) {
         int degree = 0;
         try {
