@@ -1,8 +1,6 @@
 package com.example.httptesttest;
 
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
@@ -19,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -28,15 +25,18 @@ import com.sdsmdg.tastytoast.TastyToast;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.Inflater;
 
 import jp.wasabeef.glide.transformations.BlurTransformation;
 import jp.wasabeef.glide.transformations.GrayscaleTransformation;
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
-public class MyImagePager {
-    static int layoutid = R.layout.viewpager_item;
+import static com.example.httptesttest.MainActivity.act;
 
+public class MyImagePager {
+    // viewpager 中每个view的 布局文件.
+    static int viewpager_item_layout = R.layout.viewpager_item;
+
+    // 本类管理的viewpager
     ViewPager viewPager;
     PagerAdapter pagerAdapter;
     List<Bitmap> bms;
@@ -60,9 +60,21 @@ public class MyImagePager {
             return;
         }
 
+        RequestOptions options = new RequestOptions()
+                .transforms(
+                        new GlideCircleBorderTransform(8,0xffffaaff),
+        new RoundedCornersTransformation((int)(bitmap.getWidth()*0.08), 0,RoundedCornersTransformation.CornerType.ALL)
+
+                        );
+
+        Glide.with(act)
+                .load(bitmap)
+                .apply(options)
+                .into((ImageView)views.get(index).findViewById(R.id.image));
+
         bms.set(index,bitmap);
-        View v = views.get(index);
-        ((ImageView)v.findViewById(R.id.image)).setImageBitmap(bitmap);
+//        View v = views.get(index);
+//        ((ImageView)v.findViewById(R.id.image)).setImageBitmap(bitmap);
         pagerAdapter.notifyDataSetChanged();
     }
     public ImageView getImageView(int index){
@@ -84,8 +96,11 @@ public class MyImagePager {
 
         Bitmap black_bm =  bms.get(index);
         RequestOptions options = new RequestOptions()
-                .transforms(new BlurTransformation(10), new GrayscaleTransformation(),new RoundedCornersTransformation((int)(black_bm.getWidth()*0.08), 0,RoundedCornersTransformation.CornerType.ALL));
-        Glide.with(MainActivity.act)
+                .transforms(
+                        new BlurTransformation(10),
+                        new GrayscaleTransformation(),
+                        new RoundedCornersTransformation((int)(black_bm.getWidth()*0.08), 0,RoundedCornersTransformation.CornerType.ALL));
+        Glide.with(act)
                 .load( black_bm )
                 .apply(  options )
                 .into( im );
@@ -120,7 +135,7 @@ public class MyImagePager {
         ImageView im = (ImageView)v.findViewById(R.id.image);
         //im.setImageBitmap(  bms.get(index) );
 
-        Glide.with(MainActivity.act)
+        Glide.with(act)
                 .load(bms.get(index))
                 .apply(RequestOptions.bitmapTransform(new RoundedCornersTransformation((int)(bms.get(index).getWidth()*0.08), 0,RoundedCornersTransformation.CornerType.ALL)))
                 .into(im );
@@ -168,10 +183,7 @@ public class MyImagePager {
 
         GestureDetector.SimpleOnGestureListener listener = new GestureDetector.SimpleOnGestureListener() {
             long lastclick = System.currentTimeMillis();
-            @Override public boolean onDoubleTap(MotionEvent e) {
-                Toast.makeText(MainActivity.act, "双击666", Toast.LENGTH_SHORT).show();
-                return super.onDoubleTap(e);
-            }
+
             @Override
             public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
                 long t = System.currentTimeMillis();
@@ -182,41 +194,38 @@ public class MyImagePager {
 
                 if( t-lastclick <= 7000 ){
                     System.out.println("fuck");
-                    TastyToast.makeText(MainActivity.act.getApplicationContext(), "Proccessing..", TastyToast.LENGTH_SHORT, TastyToast.ERROR);
+                    TastyToast.makeText(act.getApplicationContext(), "Proccessing..", TastyToast.LENGTH_SHORT, TastyToast.ERROR);
                     return super.onFling(e1, e2, velocityX, velocityY);
                 }
                 lastclick = t;
                 System.out.println("save");
 
                 if( (e1.getY() - e2.getY())> 220  ){
-//                    Toast.makeText(MainActivity.act, "上划", Toast.LENGTH_SHORT).show();
                     // 上划分享
                     int itemNumber = viewPager.getCurrentItem();
-                    Uri u = Util.saveImageToGallery(MainActivity.act,m.bms.get(itemNumber));
-                    Util.shareQQ( Util.getPath(MainActivity.act,u),MainActivity.qqShareListener);
+                    Uri u = Util.saveImageToGallery(act,m.bms.get(itemNumber));
+                    Util.shareQQ( Util.getPath(act,u),MainActivity.qqShareListener);
                 }else if( (e1.getY() - e2.getY())< -220 ){
-//                    Toast.makeText(MainActivity.act, "下划", Toast.LENGTH_SHORT).show();
                     // 下滑 保存
                     //System.out.println("down:"+velocityX + " " +velocityY);
                     int itemNumber = viewPager.getCurrentItem();
-                    MediaStore.Images.Media.insertImage(MainActivity.act.getContentResolver(), m.bms.get(itemNumber), "title", "description");
-                    //SnackbarUtil.LongSnackbar( m.views.get(itemNumber),"保存ing",SnackbarUtil.blue,SnackbarUtil.green).show();
-                    TastyToast.makeText(MainActivity.act.getApplicationContext(), "Saving..", TastyToast.LENGTH_LONG, TastyToast.INFO);
+                    MediaStore.Images.Media.insertImage(act.getContentResolver(), m.bms.get(itemNumber), "title", "description");
+                    TastyToast.makeText(act.getApplicationContext(), "Saving..", TastyToast.LENGTH_LONG, TastyToast.INFO);
 
                 }
                 return super.onFling(e1, e2, velocityX, velocityY);
             }
 
         };
-        final GestureDetector detector = new GestureDetector(MainActivity.act, listener);
+        final GestureDetector detector = new GestureDetector(act, listener);
 
         // 初始化view
         final List<View> views = new ArrayList<>();
         LayoutInflater inflater = context.getLayoutInflater();
         for (Bitmap bm : bitmaplist) {
-            View v = inflater.inflate(layoutid, null, false);
-            ImageView iv = (ImageView) v.findViewById(R.id.image);
-            iv.setImageBitmap(bm);
+            View v = inflater.inflate(viewpager_item_layout, null, false);
+            //ImageView iv = (ImageView) v.findViewById(R.id.image);
+            //iv.setImageBitmap(bm);
             views.add(v);
         }
 
@@ -291,7 +300,9 @@ public class MyImagePager {
 
         m.setData(viewPager,pagerAdapter,bitmaplist,views);
 
-
+        for( int i =0;i<bitmaplist.size(); i++){
+            m.setImage(i,bitmaplist.get(i));
+        }
         return m;
     }
 

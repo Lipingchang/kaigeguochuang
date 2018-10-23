@@ -16,6 +16,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +33,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
@@ -40,6 +42,7 @@ import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -48,6 +51,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -56,13 +60,17 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
 import com.bumptech.glide.request.RequestOptions;
 import com.tencent.connect.share.QQShare;
 import com.tencent.tauth.IUiListener;
 import com.tencent.tauth.UiError;
 
+import jp.wasabeef.glide.transformations.BitmapTransformation;
 import jp.wasabeef.glide.transformations.CropTransformation;
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
+
+import static com.example.httptesttest.MainActivity.act;
 
 public class Util {
 
@@ -789,7 +797,7 @@ public class Util {
     public static void writeBitmapToFile(String filePath, Bitmap b, int quality) {
         try {
             File desFile = new File(filePath);
-            FileOutputStream fos = MainActivity.act.openFileOutput(filePath,Context.MODE_PRIVATE);
+            FileOutputStream fos = act.openFileOutput(filePath,Context.MODE_PRIVATE);
 
 
             BufferedOutputStream bos = new BufferedOutputStream(fos);
@@ -804,7 +812,7 @@ public class Util {
     public static void writeStringToFile(String filePath, String b) {
         try {
             File desFile = new File(filePath);
-            FileOutputStream fos = MainActivity.act.openFileOutput(filePath,Context.MODE_PRIVATE);
+            FileOutputStream fos = act.openFileOutput(filePath,Context.MODE_PRIVATE);
 
             Writer writer = new OutputStreamWriter(fos);
 
@@ -844,7 +852,7 @@ public class Util {
 
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(cameraFile));
-        MainActivity.act.startActivityForResult(intent, CAMERA_REQUEST_CODE);
+        act.startActivityForResult(intent, CAMERA_REQUEST_CODE);
 
         MainActivity.savedPhoto = Uri.fromFile(cameraFile);
     }
@@ -885,7 +893,7 @@ public class Util {
         Intent intent=new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        MainActivity.act.startActivityForResult(intent, ALBUM_REQUEST_CODE);
+        act.startActivityForResult(intent, ALBUM_REQUEST_CODE);
     }
     public static Bitmap setImgSize(Bitmap bm, int newWidth ,int newHeight){
         // 获得图片的宽高.
@@ -914,7 +922,7 @@ public class Util {
             @Override
             public void run() {
                 if (null != MainActivity.mTencent) {
-                    MainActivity.mTencent.shareToQQ(MainActivity.act, params, qqShareListener);
+                    MainActivity.mTencent.shareToQQ(act, params, qqShareListener);
                 }
             }
         });
@@ -980,7 +988,7 @@ public class Util {
             BitmapFactory.decodeStream(cr.openInputStream(uri),null,options);
 
             // 调用上面定义的方法计算inSampleSize值
-            options.inSampleSize = Util.calculateInSampleSize(options, 400, 400);
+            options.inSampleSize = Util.calculateInSampleSize(options, 300, 300);
             // 使用获取到的inSampleSize值再次解析图片
             options.inJustDecodeBounds = false;
             Bitmap bitmap = BitmapFactory.decodeStream(cr.openInputStream(uri), null, options);
@@ -991,7 +999,7 @@ public class Util {
             int r = Util.readPictureDegree(Util.getPath(context,uri));
             img =  Util.rotaingImageView(r,img);
         } catch (Exception e) {
-            Log.e("Exception", e.getMessage(),e);
+            Log.e("getCompassImage", e.getMessage());
         }
 
 
@@ -1048,3 +1056,149 @@ public class Util {
     }
 
 }
+
+class GlideCircleBorderTransform extends BitmapTransformation {
+    private final String ID = getClass().getName();
+    private Paint mBorderPaint;
+    private float borderWidth;
+    private int borderColor;
+
+
+    public GlideCircleBorderTransform(float borderWidth, int borderColor) {
+        this.borderWidth = borderWidth;
+        this.borderColor = borderColor;
+        mBorderPaint = new Paint();
+        mBorderPaint.setColor(borderColor);
+        mBorderPaint.setStyle(Paint.Style.STROKE);
+        mBorderPaint.setAntiAlias(true);
+        mBorderPaint.setStrokeWidth(borderWidth+10);
+        mBorderPaint.setDither(true);
+
+    }
+
+    @Override
+    protected Bitmap transform(Context context, BitmapPool bitmapPool, Bitmap bitmap, int i, int i1) {
+        return circleCrop(bitmapPool, bitmap);
+    }
+
+    private Bitmap circleCrop(BitmapPool bitmapPool, Bitmap source) {
+        int wsize = source.getWidth();
+        int hsize = source.getHeight();
+//        int size = Math.min(source.getWidth(), source.getHeight());
+//        int x = (source.getWidth() - size) / 2;
+//        int y = (source.getHeight() - size) / 2;
+        Bitmap square = Bitmap.createBitmap(source);
+        Bitmap result = bitmapPool.get(wsize, hsize, Bitmap.Config.ARGB_8888);
+        if (result == null) {
+            result = Bitmap.createBitmap(wsize, hsize, Bitmap.Config.ARGB_8888);
+        }
+
+        //画图
+        Canvas canvas = new Canvas(result);
+        Paint paint = new Paint();
+        //设置 Shader
+        paint.setShader(new BitmapShader(square, BitmapShader.TileMode.CLAMP, BitmapShader.TileMode.CLAMP));
+        //paint.setAntiAlias(true);
+        //float radius = size / 2f;
+        //绘制一个圆
+        canvas.drawRect(new Rect(0,0,wsize,hsize),paint); //drawCircle(radius, radius, radius, paint);
+
+
+        /************************描边*********************/
+        //注意：避免出现描边被屏幕边缘裁掉
+        //float borderRadius = radius - (borderWidth / 2);
+        //画边框
+        canvas.drawRect(new Rect(10,10,wsize-10,hsize-10), mBorderPaint);
+        return result;
+    }
+
+    @Override
+    public void updateDiskCacheKey(MessageDigest messageDigest) {
+        messageDigest.update(ID.getBytes(CHARSET));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof GlideCircleBorderTransform;
+    }
+
+    @Override
+    public int hashCode() {
+        return ID.hashCode();
+    }
+}
+//---------------------
+//        作者：wlytctw
+//        来源：CSDN
+//        原文：https://blog.csdn.net/wlytctw/article/details/81740915
+//        版权声明：本文为博主原创文章，转载请附上博文链接！
+
+//class GlideCircleTransform extends BitmapTransformation {
+//
+//    private Paint mBorderPaint;
+//    private float mBorderWidth;
+//
+//
+//    public GlideCircleTransform(int borderWidth, int borderColor) {
+//        mBorderWidth = Resources.getSystem().getDisplayMetrics().density * borderWidth;
+//
+//        mBorderPaint = new Paint();
+//        mBorderPaint.setDither(true);
+//        mBorderPaint.setAntiAlias(true);
+//        mBorderPaint.setColor(borderColor);
+//        mBorderPaint.setStyle(Paint.Style.STROKE);
+//        mBorderPaint.setStrokeWidth(mBorderWidth);
+//    }
+//
+//
+//    private Bitmap circleCrop(BitmapPool pool, Bitmap source) {
+//        if (source == null) return null;
+//
+////        int size = (int) (Math.min(source.getWidth(), source.getHeight()) - (mBorderWidth / 2));
+////        int x = (source.getWidth() - size) / 2;
+////        int y = (source.getHeight() - size) / 2;
+////        // TODO this could be acquired from the pool too
+////        Bitmap squared = Bitmap.createBitmap(source, x, y, size, size);
+//        Bitmap result = pool.get(size, size, Bitmap.Config.ARGB_8888);
+////        if (result == null) {
+////            result = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+////        }
+//        Canvas canvas = new Canvas(result);
+//        Paint paint = new Paint();
+//        paint.setShader(new BitmapShader(squared, BitmapShader.TileMode.CLAMP, BitmapShader.TileMode.CLAMP));
+//        paint.setAntiAlias(true);
+//        float r = size / 2f;
+//        canvas.drawCircle(r, r, r, paint);
+//        if (mBorderPaint != null) {
+//            float borderRadius = r - mBorderWidth / 2;
+//            canvas.drawCircle(r, r, borderRadius, mBorderPaint);
+//        }
+//        return result;
+//    }
+//
+//
+//    @Override
+//    protected Bitmap transform(@NonNull Context context, @NonNull BitmapPool pool, @NonNull Bitmap toTransform, int outWidth, int outHeight) {
+//        return circleCrop(pool, toTransform);
+//    }
+//
+//    @Override
+//    public void updateDiskCacheKey(@NonNull MessageDigest messageDigest) {
+//
+//    }
+//
+//    @Override
+//    public boolean equals(Object o) {
+//        return false;
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return 0;
+//    }
+//}
+////---------------------
+////        作者：灵均子孟
+////        来源：CSDN
+////        原文：https://blog.csdn.net/u010694658/article/details/53539486
+////        版权声明：本文为博主原创文章，转载请附上博文链接！

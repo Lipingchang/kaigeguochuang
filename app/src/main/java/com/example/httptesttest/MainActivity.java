@@ -178,7 +178,6 @@ public class MainActivity extends AppCompatActivity {
         setBlurryBackground(img);
         //更新viewpager 并且设置在载入中
         for( int i = 0; i<imagelist.length; i++){
-            final Bitmap bitmapTar;
             myImagePager.setImage(i,currentBitmap);
             Glide.with(act)
                     .load(currentBitmap)
@@ -250,10 +249,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void InitViews(){
+        Resources resources = this.getResources();
+
+
         // 先把要展示的图片放到 views 中
         List<Bitmap> views = new ArrayList<>();
         for (int i = 0; i < imagelist.length; i++) {
-            Bitmap bm = BitmapFactory.decodeResource(getResources(), imagelist[i]);
+            Bitmap bm = Util.getCompassImage(this,
+                    Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + resources.getResourcePackageName(imagelist[i] ) + '/' + resources.getResourceTypeName(imagelist[i]) + '/' + resources.getResourceEntryName(imagelist[i]) )
+            );//BitmapFactory.decodeResource(getResources(), imagelist[i]);
             views.add(bm);
         }
         // 获取设置好的viewPager
@@ -278,7 +282,6 @@ public class MainActivity extends AppCompatActivity {
 
         // 设置背景
         bg_view = (ImageView)findViewById(R.id.bgimageview);
-        Resources resources = this.getResources();
         Uri uri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + resources.getResourcePackageName(R.drawable.welcome) + '/' + resources.getResourceTypeName(R.drawable.welcome) + '/' + resources.getResourceEntryName(R.drawable.welcome) );
         Bitmap center = Util.getCompassImage(this, uri);
         jp.wasabeef.blurry.Blurry.with(act).radius(10).from(center).into( bg_view );
