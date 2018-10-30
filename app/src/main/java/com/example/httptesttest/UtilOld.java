@@ -40,10 +40,13 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.DrawableWrapper;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
@@ -51,11 +54,16 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v4.view.ViewCompat;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -72,11 +80,9 @@ import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 import static com.example.httptesttest.MainActivity.act;
 
-public class Util {
+public class UtilOld {
 
 
-    private static final String CAMERA_DIR = "/dcim/";
-    private static final String albumName ="CameraSample";
 
     private static final String TAG = "SDK_Sample.Util";
 
@@ -748,45 +754,9 @@ public class Util {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
 
-    public static final int REQUEST_PERMISSION_CODE = 100;
-    public static void getPermission(Activity act){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
-            int hasWritePermission = act.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            int hasReadPermission = act.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
 
-            List<String> permissions = new ArrayList<String>();
-            if (hasWritePermission != PackageManager.PERMISSION_GRANTED) {
-                permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            } else { }
 
-            if (hasReadPermission != PackageManager.PERMISSION_GRANTED) {
-                permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
-
-            } else { }
-
-            if (!permissions.isEmpty()) {
-                act.requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE}, REQUEST_PERMISSION_CODE);
-            }
-        }
-    }
-
-    public static IUiListener getQQListener(final Activity context){
-        return new IUiListener() {
-            @Override
-            public void onCancel() {
-                Util.toastMessage(context, "分享取消");
-            }
-            @Override
-            public void onComplete(Object response) {
-                Util.toastMessage(context, "分享成功" + response.toString());
-            }
-            @Override
-            public void onError(UiError e) {
-                Util.toastMessage(context, "分享出错" + e.errorMessage, "e");
-            }
-        };
-    }
 
 //    public static void setAllBtnToCommon(){
 //        monet.setBackground(getResources().getDrawable (  R.drawable.common, null ) );
@@ -839,9 +809,6 @@ public class Util {
         return b;
     }
 
-    // 常量
-    public static final int ALBUM_REQUEST_CODE = 200;
-    public static final int CAMERA_REQUEST_CODE = 300;
     public static void selecPicFromCarema(){
         Intent it = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
@@ -978,34 +945,7 @@ public class Util {
         }
         return inSampleSize;
     }
-    public static Bitmap getCompassImage(Context context,Uri uri){
-        Bitmap img=null;
-        ContentResolver cr = context.getContentResolver();
-        try {
-            // 把图片压缩下
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeStream(cr.openInputStream(uri),null,options);
 
-            // 调用上面定义的方法计算inSampleSize值
-            options.inSampleSize = Util.calculateInSampleSize(options, 300, 300);
-            // 使用获取到的inSampleSize值再次解析图片
-            options.inJustDecodeBounds = false;
-            Bitmap bitmap = BitmapFactory.decodeStream(cr.openInputStream(uri), null, options);
-
-            img = bitmap;
-
-            // 小米三星拍照是有过旋转的
-            int r = Util.readPictureDegree(Util.getPath(context,uri));
-            img =  Util.rotaingImageView(r,img);
-        } catch (Exception e) {
-            Log.e("getCompassImage", e.getMessage());
-        }
-
-
-
-        return  img;
-    }
     public static int readPictureDegree(String path) {
         int degree = 0;
         try {
@@ -1052,6 +992,43 @@ public class Util {
     public static void imageCorners(Context context, Bitmap bitmap, ImageView view){
         Glide.with(context).load(bitmap).apply(RequestOptions.bitmapTransform(new RoundedCornersTransformation(45, 0,
                 RoundedCornersTransformation.CornerType.BOTTOM))).into(view);
+
+    }
+
+    static void changeTheme(MainActivity activity,int color){
+        setStatusBarColor(activity,color);
+        setColor(activity.album_btn,activity.getDrawable(R.drawable.album_button_grey),color);
+        setColor(activity.camera_btn,activity.getDrawable(R.drawable.carmera_button_grey),color);
+    }
+    // 给标题栏设置主色调
+    static void setStatusBarColor(Activity activity, int statusColor) {
+        Window window = activity.getWindow();
+        //取消状态栏透明
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        //添加Flag把状态栏设为可绘制模式
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        //设置状态栏颜色
+        window.setStatusBarColor(statusColor);
+        //设置系统状态栏处于可见状态
+        window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+        //让view不根据系统窗口来调整自己的布局
+        ViewGroup mContentView = (ViewGroup) window.findViewById(Window.ID_ANDROID_CONTENT);
+        View mChildView = mContentView.getChildAt(0);
+        if (mChildView != null) {
+            ViewCompat.setFitsSystemWindows(mChildView, false);
+            ViewCompat.requestApplyInsets(mChildView);
+        }
+    }
+
+    // 给按钮设置 主色调
+    public static void setColor(Button btn, Drawable drawable, int color){
+        Drawable wrappedDrawable =  DrawableCompat.wrap( drawable );
+        DrawableCompat.setTint(wrappedDrawable, color);
+        btn.setBackground(wrappedDrawable);
+    }
+    public static void setColor(Button btn,Drawable drawable, int a, int r,int g,int b){
+        int color = Color.argb(a,r,g,b);
+        setColor(btn,drawable,color);
 
     }
 
@@ -1127,78 +1104,3 @@ class GlideCircleBorderTransform extends BitmapTransformation {
         return ID.hashCode();
     }
 }
-//---------------------
-//        作者：wlytctw
-//        来源：CSDN
-//        原文：https://blog.csdn.net/wlytctw/article/details/81740915
-//        版权声明：本文为博主原创文章，转载请附上博文链接！
-
-//class GlideCircleTransform extends BitmapTransformation {
-//
-//    private Paint mBorderPaint;
-//    private float mBorderWidth;
-//
-//
-//    public GlideCircleTransform(int borderWidth, int borderColor) {
-//        mBorderWidth = Resources.getSystem().getDisplayMetrics().density * borderWidth;
-//
-//        mBorderPaint = new Paint();
-//        mBorderPaint.setDither(true);
-//        mBorderPaint.setAntiAlias(true);
-//        mBorderPaint.setColor(borderColor);
-//        mBorderPaint.setStyle(Paint.Style.STROKE);
-//        mBorderPaint.setStrokeWidth(mBorderWidth);
-//    }
-//
-//
-//    private Bitmap circleCrop(BitmapPool pool, Bitmap source) {
-//        if (source == null) return null;
-//
-////        int size = (int) (Math.min(source.getWidth(), source.getHeight()) - (mBorderWidth / 2));
-////        int x = (source.getWidth() - size) / 2;
-////        int y = (source.getHeight() - size) / 2;
-////        // TODO this could be acquired from the pool too
-////        Bitmap squared = Bitmap.createBitmap(source, x, y, size, size);
-//        Bitmap result = pool.get(size, size, Bitmap.Config.ARGB_8888);
-////        if (result == null) {
-////            result = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
-////        }
-//        Canvas canvas = new Canvas(result);
-//        Paint paint = new Paint();
-//        paint.setShader(new BitmapShader(squared, BitmapShader.TileMode.CLAMP, BitmapShader.TileMode.CLAMP));
-//        paint.setAntiAlias(true);
-//        float r = size / 2f;
-//        canvas.drawCircle(r, r, r, paint);
-//        if (mBorderPaint != null) {
-//            float borderRadius = r - mBorderWidth / 2;
-//            canvas.drawCircle(r, r, borderRadius, mBorderPaint);
-//        }
-//        return result;
-//    }
-//
-//
-//    @Override
-//    protected Bitmap transform(@NonNull Context context, @NonNull BitmapPool pool, @NonNull Bitmap toTransform, int outWidth, int outHeight) {
-//        return circleCrop(pool, toTransform);
-//    }
-//
-//    @Override
-//    public void updateDiskCacheKey(@NonNull MessageDigest messageDigest) {
-//
-//    }
-//
-//    @Override
-//    public boolean equals(Object o) {
-//        return false;
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return 0;
-//    }
-//}
-////---------------------
-////        作者：灵均子孟
-////        来源：CSDN
-////        原文：https://blog.csdn.net/u010694658/article/details/53539486
-////        版权声明：本文为博主原创文章，转载请附上博文链接！

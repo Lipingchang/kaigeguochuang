@@ -1,79 +1,41 @@
 package com.example.httptesttest;
 
 
-import android.Manifest;
-import android.app.Activity;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
-import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.graphics.Palette;
 import android.util.Base64;
 import android.util.JsonReader;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.target.Target;
-import com.bumptech.glide.request.transition.Transition;
 import com.tencent.connect.common.Constants;
-import com.tencent.connect.share.QQShare;
 import com.tencent.tauth.IUiListener;
 import com.tencent.tauth.Tencent;
-import com.tencent.tauth.UiError;
 
-import org.w3c.dom.Text;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.StringReader;
-import java.io.Writer;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
-
+import com.example.httptesttest.myutil.*;
 
 public class MainActivity extends AppCompatActivity {
 
     // 待初始化的变量
-    Button album_btn,camera_btn;
+    public Button album_btn,camera_btn;
     ImageView bg_view;
     ViewPager viewPager;
     MyImagePager myImagePager;
@@ -286,7 +248,28 @@ public class MainActivity extends AppCompatActivity {
         Bitmap center = Util.getCompassImage(this, uri);
         jp.wasabeef.blurry.Blurry.with(act).radius(10).from(center).into( bg_view );
 
+        Palette.Builder builder = Palette.from(center);
+        final MainActivity that = this;
+        builder.generate(new Palette.PaletteAsyncListener() {
+            @Override public void onGenerated(Palette palette) {
+                //获取到充满活力的这种色调
+                Palette.Swatch vibrant = palette.getDominantSwatch();
+                Palette.Swatch color2 = palette.getDarkMutedSwatch();
+               // Palette.Swatch color3 = palette.getLightVibrantColor(  );
+//                Util.setStatusBarColor(act,vibrant.getRgb());
+                Util.changeTheme(that,color2.getRgb());
+
+            }
+        });
+
     }
+
+
+//
+//    作者：imflyn
+//    链接：https://www.jianshu.com/p/932568ed31af
+//    來源：简书
+//    简书著作权归作者所有，任何形式的转载都请联系作者获得授权并注明出处。
 
 
 
