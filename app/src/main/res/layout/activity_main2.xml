@@ -7,12 +7,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-<ImageView
-    android:adjustViewBounds="true"
-    android:scaleType="fitXY"
-    android:id="@+id/bgimageview"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" />
+
+    <ImageView
+        android:contentDescription="@string/app_name"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:id="@+id/bgimageview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <!--test page view-->
     <LinearLayout
@@ -79,7 +81,7 @@
         android:orientation="horizontal">
 
         <Button
-            android:layout_marginRight="10dp"
+            android:layout_marginEnd="10dp"
             android:id="@+id/btn_from_album"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
@@ -87,7 +89,7 @@
             android:background="@drawable/album_button" />
 
         <Button
-            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
             android:id="@+id/btn_from_carema"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"

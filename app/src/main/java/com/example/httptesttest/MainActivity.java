@@ -115,22 +115,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public  void setBlurryBackground(Bitmap img){
-        int w,h,img_w,img_h;
-
-        w = bg_view.getWidth();  h = bg_view.getHeight();
-        img_w = img.getWidth();   img_h = img.getHeight();
-
-        float w_bei = (float)(w*1.0/img_w);
-        float h_bei = (float)(h*1.0/img_h);
-        float bei = w_bei<h_bei ? h_bei : w_bei;
-
-        // 放大
-        img =  Util.setImageSize(img,(int)(img_w*bei)+1 , (int)(img_h*bei)+1);
-        // 裁剪中间的
-        Bitmap center = Bitmap.createBitmap(img,(img.getWidth()-w)/2,(img.getHeight()-h)/2,w,h);
-        // 模糊化 放上去
-        jp.wasabeef.blurry.Blurry.with(act).radius(30).from(center).into( bg_view );
-        // TODO 把状态栏的颜色调整成和 图片主色调一样
+        jp.wasabeef.blurry.Blurry.with(act).radius(30).from(img).into( bg_view );
     }
 
     // 设置当前要转换的图片，背景是拉升之后毛玻璃话的图片，
@@ -211,15 +196,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void InitViews(){
-        Resources resources = this.getResources();
-
 
         // 先把要展示的图片放到 views 中
         List<Bitmap> views = new ArrayList<>();
         for (int i = 0; i < imagelist.length; i++) {
-            Bitmap bm = Util.getCompassImage(this,
-                    Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + resources.getResourcePackageName(imagelist[i] ) + '/' + resources.getResourceTypeName(imagelist[i]) + '/' + resources.getResourceEntryName(imagelist[i]) )
-            );//BitmapFactory.decodeResource(getResources(), imagelist[i]);
+            Bitmap bm = Util.getCompassImage(this,Util.drawableid2Uri(this,imagelist[i]),100,100);
             views.add(bm);
         }
         // 获取设置好的viewPager
