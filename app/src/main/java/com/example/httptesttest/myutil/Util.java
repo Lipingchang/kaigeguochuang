@@ -7,6 +7,7 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -149,7 +150,7 @@ public class Util {
     ====================================图片====================================
      */
 
-    // 获取一个限定矩形大小内的图片
+    // 获取一个 小于限定矩形大小 的图片
     public static Bitmap getCompassImage(Context context, Uri uri,int width,int heigh){
         Bitmap img=null;
         ContentResolver cr = context.getContentResolver();
@@ -233,6 +234,19 @@ public class Util {
         act.startActivityForResult(intent, ALBUM_REQUEST_CODE);
     }
 
+    // 把drawable的id 转换成uri
+    public static Uri drawableid2Uri(Context context, int id){
+        Resources resources = context.getResources();
+        return Uri.parse(
+                ContentResolver.SCHEME_ANDROID_RESOURCE
+                        + "://"
+                        + resources.getResourcePackageName( id )
+                        + '/'
+                        + resources.getResourceTypeName( id )
+                        + '/'
+                        + resources.getResourceEntryName( id )
+        );
+    }
 
 
 }
