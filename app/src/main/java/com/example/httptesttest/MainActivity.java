@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
         float bei = w_bei<h_bei ? h_bei : w_bei;
 
         // 放大
-        img =  Util.setImgSize(img,(int)(img_w*bei)+1 , (int)(img_h*bei)+1);
+        img =  Util.setImageSize(img,(int)(img_w*bei)+1 , (int)(img_h*bei)+1);
         // 裁剪中间的
         Bitmap center = Bitmap.createBitmap(img,(img.getWidth()-w)/2,(img.getHeight()-h)/2,w,h);
         // 模糊化 放上去

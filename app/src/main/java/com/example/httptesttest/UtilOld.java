@@ -591,98 +591,16 @@ public class UtilOld {
 
     public static String ACTION_OPEN_DOCUMENT = "android.intent.action.OPEN_DOCUMENT";
     public static int Build_VERSION_KITKAT = 19;
-    public static String getPath(final Context context, final Uri uri) {
 
-        final boolean isKitKat = Build.VERSION.SDK_INT >= 19;
 
-        // DocumentProvider
-        if (isKitKat && isDocumentUri(context, uri)) {
-            // ExternalStorageProvider
-            if (isExternalStorageDocument(uri)) {
-                final String docId = getDocumentId(uri);
-                final String[] split = docId.split(":");
-                final String type = split[0];
-
-                if ("primary".equalsIgnoreCase(type)) {
-                    return Environment.getExternalStorageDirectory() + "/" + split[1];
-                }
-
-            }
-            // DownloadsProvider
-            else if (isDownloadsDocument(uri)) {
-
-                final String id = getDocumentId(uri);
-                final Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"),
-                        Long.valueOf(id));
-
-                return getDataColumn(context, contentUri, null, null);
-            }
-            // MediaProvider
-            else if (isMediaDocument(uri)) {
-                final String docId = getDocumentId(uri);
-                final String[] split = docId.split(":");
-                final String type = split[0];
-
-                Uri contentUri = null;
-                if ("image".equals(type)) {
-                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                } else if ("video".equals(type)) {
-                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-                } else if ("audio".equals(type)) {
-                    contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-                }
-
-                final String selection = "_id=?";
-                final String[] selectionArgs = new String[] { split[1] };
-
-                return getDataColumn(context, contentUri, selection, selectionArgs);
-            }
-        }
-        // MediaStore (and general)
-        else if ("content".equalsIgnoreCase(uri.getScheme())) {
-
-            // Return the remote address
-            if (isGooglePhotosUri(uri))
-                return uri.getLastPathSegment();
-
-            return getDataColumn(context, uri, null, null);
-        }
-        // File
-        else if ("file".equalsIgnoreCase(uri.getScheme())) {
-            return uri.getPath();
-        }
-
-        return null;
-    }
-
-    private static final String PATH_DOCUMENT = "document";
 
     /**
      * Test if the given URI represents a {@link ?? } backed by a
      * {@link ??}.
      */
-    private static boolean isDocumentUri(Context context, Uri uri) {
-        final List<String> paths = uri.getPathSegments();
-        if (paths.size() < 2) {
-            return false;
-        }
-        if (!PATH_DOCUMENT.equals(paths.get(0))) {
-            return false;
-        }
 
-        return true;
-    }
 
-    private static String getDocumentId(Uri documentUri) {
-        final List<String> paths = documentUri.getPathSegments();
-        if (paths.size() < 2) {
-            throw new IllegalArgumentException("Not a document: " + documentUri);
-        }
-        if (!PATH_DOCUMENT.equals(paths.get(0))) {
-            throw new IllegalArgumentException("Not a document: " + documentUri);
-        }
-        return paths.get(1);
-    }
+
 
     /**
      * Get the value of the data column for this Uri. This is useful for
@@ -699,60 +617,34 @@ public class UtilOld {
      *            [url=home.php?mod=space&uid=7300]@return[/url] The value of
      *            the _data column, which is typically a file path.
      */
-    public static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
 
-        Cursor cursor = null;
-        final String column = "_data";
-        final String[] projection = { column };
-
-        try {
-            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
-            if (cursor != null && cursor.moveToFirst()) {
-                final int index = cursor.getColumnIndexOrThrow(column);
-                return cursor.getString(index);
-            }
-        } finally {
-            if (cursor != null)
-                cursor.close();
-        }
-        return null;
-    }
 
     /**
      * @param uri
      *            The Uri to check.
      * @return Whether the Uri authority is ExternalStorageProvider.
      */
-    public static boolean isExternalStorageDocument(Uri uri) {
-        return "com.android.externalstorage.documents".equals(uri.getAuthority());
-    }
+
 
     /**
      * @param uri
      *            The Uri to check.
      * @return Whether the Uri authority is DownloadsProvider.
      */
-    public static boolean isDownloadsDocument(Uri uri) {
-        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
-    }
 
     /**
      * @param uri
      *            The Uri to check.
      * @return Whether the Uri authority is MediaProvider.
      */
-    public static boolean isMediaDocument(Uri uri) {
-        return "com.android.providers.media.documents".equals(uri.getAuthority());
-    }
+
 
     /**
      * @param uri
      *            The Uri to check.
      * @return Whether the Uri authority is Google Photos.
      */
-    public static boolean isGooglePhotosUri(Uri uri) {
-        return "com.google.android.apps.photos.content".equals(uri.getAuthority());
-    }
+
 
 
 
@@ -794,11 +686,6 @@ public class UtilOld {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-    public static Bitmap base642Bitmap(String base){
-        byte[] decodedString = Base64.decode(base, Base64.DEFAULT);
-        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-        return decodedByte;
     }
 
 
@@ -855,27 +742,8 @@ public class UtilOld {
 
     }
 
-    //打开本地相册选择图片
-    public static void selectPic(){
-        Intent intent=new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        act.startActivityForResult(intent, ALBUM_REQUEST_CODE);
-    }
-    public static Bitmap setImgSize(Bitmap bm, int newWidth ,int newHeight){
-        // 获得图片的宽高.
-        int width = bm.getWidth();
-        int height = bm.getHeight();
-        // 计算缩放比例.
-        float scaleWidth = ((float) newWidth) / width;
-        float scaleHeight = ((float) newHeight) / height;
-        // 取得想要缩放的matrix参数.
-        Matrix matrix = new Matrix();
-        matrix.postScale(scaleWidth, scaleHeight);
-        // 得到新的图片.
-        Bitmap newbm = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, true);
-        return newbm;
-    }
+
+
 
     //发送QQ分享
     public static void shareQQ(String uri,   final IUiListener qqShareListener) {
@@ -929,66 +797,11 @@ public class UtilOld {
         return null;
     }
 
-    public static int calculateInSampleSize(BitmapFactory.Options options,
-                                            int reqWidth, int reqHeight) {
-        // 源图片的高度和宽度
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-        if (height > reqHeight || width > reqWidth) {
-            // 计算出实际宽高和目标宽高的比率
-            final int heightRatio = Math.round((float) height / (float) reqHeight);
-            final int widthRatio = Math.round((float) width / (float) reqWidth);
-            // 选择宽和高中最小的比率作为inSampleSize的值，这样可以保证最终图片的宽和高
-            // 一定都会大于等于目标的宽和高。
-            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
-        }
-        return inSampleSize;
-    }
 
-    public static int readPictureDegree(String path) {
-        int degree = 0;
-        try {
-            ExifInterface exifInterface = new ExifInterface(path);
-            int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-            switch (orientation) {
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    degree = 90;
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_180:
-                    degree = 180;
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    degree = 270;
-                    break;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return degree;
-    }
 
-    public static Bitmap rotaingImageView(int angle, Bitmap bitmap) {
-        if(angle == 0){
-            return bitmap;
-        }
-        Bitmap returnBm = null;
-        // 根据旋转角度，生成旋转矩阵
-        Matrix matrix = new Matrix();
-        matrix.postRotate(angle);
-        try {
-            // 将原始图片按照旋转矩阵进行旋转，并得到新的图片
-            returnBm = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-        } catch (OutOfMemoryError e) {
-        }
-        if (returnBm == null) {
-            returnBm = bitmap;
-        }
-        if (bitmap != returnBm) {
-            bitmap.recycle();
-        }
-        return returnBm;
-    }
+
+
+
     public static void imageCorners(Context context, Bitmap bitmap, ImageView view){
         Glide.with(context).load(bitmap).apply(RequestOptions.bitmapTransform(new RoundedCornersTransformation(45, 0,
                 RoundedCornersTransformation.CornerType.BOTTOM))).into(view);
