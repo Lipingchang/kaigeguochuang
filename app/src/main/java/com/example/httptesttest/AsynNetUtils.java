@@ -53,7 +53,7 @@ public class AsynNetUtils {
                     String dest;
                     dest = m.replaceAll("");
 
-                    k = "{\"style\":\""+ MainActivity.style+ "\",\"image\":\"" + dest + "\",\"date\":\"2018-10-11\" }";
+                    k = "{\"style\":\""+ "MainActivity.style"+ "\",\"image\":\"" + dest + "\",\"date\":\"2018-10-11\" }";
 
                     //MainActivity.writeStringToFile("content2.txt",dest);
 

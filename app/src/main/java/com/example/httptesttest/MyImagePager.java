@@ -61,8 +61,8 @@ public class MyImagePager {
 
         RequestOptions options = new RequestOptions()
                 .transforms(
-                        new GlideCircleBorderTransform(8,0xffffaaff),
-        new RoundedCornersTransformation((int)(bitmap.getWidth()*0.08), 0,RoundedCornersTransformation.CornerType.ALL)
+                        new GlideCircleBorderTransform(30,(int)(bitmap.getWidth()*0.08),0xffffaaff),
+                        new RoundedCornersTransformation((int)(bitmap.getWidth()*0.08), 0,RoundedCornersTransformation.CornerType.ALL)
 
                         );
 
@@ -72,8 +72,6 @@ public class MyImagePager {
                 .into((ImageView)views.get(index).findViewById(R.id.image));
 
         bms.set(index,bitmap);
-//        View v = views.get(index);
-//        ((ImageView)v.findViewById(R.id.image)).setImageBitmap(bitmap);
         pagerAdapter.notifyDataSetChanged();
     }
     public ImageView getImageView(int index){
@@ -98,28 +96,15 @@ public class MyImagePager {
                 .transforms(
                         new BlurTransformation(10),
                         new GrayscaleTransformation(),
+                        new GlideCircleBorderTransform(30,(int)(black_bm.getWidth()*0.08),0xffffaaff),
                         new RoundedCornersTransformation((int)(black_bm.getWidth()*0.08), 0,RoundedCornersTransformation.CornerType.ALL));
+
         Glide.with(act)
                 .load( black_bm )
                 .apply(  options )
                 .into( im );
 
-
-        //im.setImageBitmap(  black_bm );
-
         layout_view.setVisibility(View.VISIBLE);
-
-        // 设置等待层 的图片一样大小
-//        int imgviewwidth = im.getWidth();
-//        int black_bmwidth = black_bm.getWidth();
-//        int imagewidth = black_bmwidth > imgviewwidth ? imgviewwidth : black_bmwidth;
-//        int imageviewheight = (int)( black_bm.getHeight() * (imagewidth*1.0 / (black_bmwidth*1.0)) );
-//
-//
-//        ViewGroup.LayoutParams imgparams = im.getLayoutParams();
-//        imgparams.height =  imageviewheight;
-//        imgparams.width = imagewidth;
-//        layout_view.setLayoutParams(imgparams);
 
 
     }
@@ -141,38 +126,6 @@ public class MyImagePager {
 
         layout.setVisibility(View.INVISIBLE);
     }
-
-    public static Bitmap getGrayBitmap(Bitmap bm) {
-        Bitmap bitmap = null;
-        //获取图片的宽和高
-        int width = bm.getWidth();
-        int height = bm.getHeight();
-        //创建灰度图片
-        bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
-        //创建画布
-        Canvas canvas = new Canvas(bitmap);
-        //创建画笔
-        Paint paint = new Paint();
-        //创建颜色矩阵
-        ColorMatrix matrix = new ColorMatrix();
-        //设置颜色矩阵的饱和度:0代表灰色,1表示原图
-        matrix.setSaturation(0);
-        //颜色过滤器
-        ColorMatrixColorFilter cmcf = new ColorMatrixColorFilter(matrix);
-        //设置画笔颜色过滤器
-        paint.setColorFilter(cmcf);
-        //画图
-        canvas.drawBitmap(bm, 0, 0, paint);
-        return bitmap;
-
-//        ---------------------
-//                作者：xuwenneng
-//        来源：CSDN
-//        原文：https://blog.csdn.net/xuwenneng/article/details/52634979?utm_source=copy
-//        版权声明：本文为博主原创文章，转载请附上博文链接！
-    }
-
-
 
 
 

@@ -696,51 +696,6 @@ public class UtilOld {
         return b;
     }
 
-    public static void selecPicFromCarema(){
-        Intent it = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-        StrictMode.setVmPolicy(builder.build());
-
-        String filename = "gandemo"+System.currentTimeMillis()+".jpg";
-        File cameraFile = new File(getPhotoDir().getAbsolutePath()+filename);
-
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(cameraFile));
-        act.startActivityForResult(intent, CAMERA_REQUEST_CODE);
-
-        MainActivity.savedPhoto = Uri.fromFile(cameraFile);
-    }
-    private static File getPhotoDir(){
-        File storDirPrivate = null;
-        File storDirPublic = null;
-
-        if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())){
-
-            //private,只有本应用可访问
-            storDirPrivate = new File (
-                    Environment.getExternalStorageDirectory()
-                            + CAMERA_DIR
-                            + albumName
-            );
-
-            //public 所有应用均可访问
-            storDirPublic = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),albumName);
-            System.out.println("dir:"+storDirPublic.getAbsolutePath());
-            if (storDirPublic != null) {
-                if (! storDirPublic.mkdirs()) {
-                    if (! storDirPublic.exists()){
-                        Log.d("CameraSample", "failed to create directory");
-                        return null;
-                    }
-                }
-            }
-        }else {
-            Log.v("myerror", "External storage is not mounted READ/WRITE.");
-        }
-
-        return storDirPublic;//或者return storDirPrivate;
-
-    }
 
 
 
@@ -808,42 +763,8 @@ public class UtilOld {
 
     }
 
-    static void changeTheme(MainActivity activity,int color){
-        setStatusBarColor(activity,color);
-        setColor(activity.album_btn,activity.getDrawable(R.drawable.album_button_grey),color);
-        setColor(activity.camera_btn,activity.getDrawable(R.drawable.carmera_button_grey),color);
-    }
-    // 给标题栏设置主色调
-    static void setStatusBarColor(Activity activity, int statusColor) {
-        Window window = activity.getWindow();
-        //取消状态栏透明
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        //添加Flag把状态栏设为可绘制模式
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        //设置状态栏颜色
-        window.setStatusBarColor(statusColor);
-        //设置系统状态栏处于可见状态
-        window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-        //让view不根据系统窗口来调整自己的布局
-        ViewGroup mContentView = (ViewGroup) window.findViewById(Window.ID_ANDROID_CONTENT);
-        View mChildView = mContentView.getChildAt(0);
-        if (mChildView != null) {
-            ViewCompat.setFitsSystemWindows(mChildView, false);
-            ViewCompat.requestApplyInsets(mChildView);
-        }
-    }
 
-    // 给按钮设置 主色调
-    public static void setColor(Button btn, Drawable drawable, int color){
-        Drawable wrappedDrawable =  DrawableCompat.wrap( drawable );
-        DrawableCompat.setTint(wrappedDrawable, color);
-        btn.setBackground(wrappedDrawable);
-    }
-    public static void setColor(Button btn,Drawable drawable, int a, int r,int g,int b){
-        int color = Color.argb(a,r,g,b);
-        setColor(btn,drawable,color);
 
-    }
 
 }
 
@@ -852,16 +773,17 @@ class GlideCircleBorderTransform extends BitmapTransformation {
     private Paint mBorderPaint;
     private float borderWidth;
     private int borderColor;
+    private float borderRadius;
 
-
-    public GlideCircleBorderTransform(float borderWidth, int borderColor) {
+    public GlideCircleBorderTransform(float borderWidth, float borderRadius,int borderColor) {
         this.borderWidth = borderWidth;
         this.borderColor = borderColor;
+        this.borderRadius = borderRadius;
         mBorderPaint = new Paint();
         mBorderPaint.setColor(borderColor);
         mBorderPaint.setStyle(Paint.Style.STROKE);
         mBorderPaint.setAntiAlias(true);
-        mBorderPaint.setStrokeWidth(borderWidth+10);
+        mBorderPaint.setStrokeWidth(borderWidth);
         mBorderPaint.setDither(true);
 
     }
@@ -898,7 +820,7 @@ class GlideCircleBorderTransform extends BitmapTransformation {
         //注意：避免出现描边被屏幕边缘裁掉
         //float borderRadius = radius - (borderWidth / 2);
         //画边框
-        canvas.drawRect(new Rect(10,10,wsize-10,hsize-10), mBorderPaint);
+        canvas.drawRoundRect(new RectF(0,0,wsize,hsize),borderRadius,borderRadius , mBorderPaint);
         return result;
     }
 

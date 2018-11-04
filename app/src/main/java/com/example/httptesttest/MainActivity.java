@@ -48,11 +48,11 @@ public class MainActivity extends AppCompatActivity {
     public static Uri savedPhoto; // 相机照片缓存文件
     public static Uri currentPhotoUri; // 要发送给后台的照片的uri
 
+    public static int defaultImageW = 500; // viewpager中每个图片的大小
+    public static int defaultImageH = 1000;
+
+
     Bitmap currentBitmap;
-    public static String style = "";
-    String imageURI;
-
-
     int[] imagelist = {R.drawable.viewpage1, R.drawable.viewpage2, R.drawable.viewpage3, R.drawable.viewpage4, R.drawable.viewpage5, R.drawable.viewpage6};
 
 
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
         if( (requestCode == Util.CAMERA_REQUEST_CODE || requestCode==Util.ALBUM_REQUEST_CODE )&& resultCode==RESULT_OK){
             // 照相机返回的照片已经保存在savedPhoto上了,从相册返回的照片的信息还需要从data中获取
             currentPhotoUri= requestCode==Util.CAMERA_REQUEST_CODE ? savedPhoto : data.getData();
-            img = Util.getCompassImage(act,currentPhotoUri);
+            img = Util.getCompassImage(act,currentPhotoUri,defaultImageW,defaultImageW);
         }
 
         if( img != null ){
@@ -114,93 +114,91 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    public  void setBlurryBackground(Bitmap img){
-        jp.wasabeef.blurry.Blurry.with(act).radius(30).from(img).into( bg_view );
-    }
 
     // 设置当前要转换的图片，背景是拉升之后毛玻璃话的图片，
     public void setCurrentImage(Bitmap img){
         currentBitmap = img;
 
-        setBlurryBackground(img);
-        //更新viewpager 并且设置在载入中
+        //设置模糊的背景
+        jp.wasabeef.blurry.Blurry.with(act).radius(30).from(img).into( bg_view );
+        //替换viewpager中的图片 并且设置正在载入中
         for( int i = 0; i<imagelist.length; i++){
             myImagePager.setImage(i,currentBitmap);
-            Glide.with(act)
-                    .load(currentBitmap)
-                    .apply(
-                            RequestOptions.bitmapTransform(
-                                    new RoundedCornersTransformation(
-                                            (int)(currentBitmap.getWidth()*0.08),
-                                            0,
-                                            RoundedCornersTransformation.CornerType.ALL)
-                            ))
-                    .into(myImagePager.getImageView(i));
+//            Glide.with(act)
+//                    .load(currentBitmap)
+//                    .apply(
+//                            RequestOptions.bitmapTransform(
+//                                    new RoundedCornersTransformation(
+//                                            (int)(currentBitmap.getWidth()*0.08),
+//                                            0,
+//                                            RoundedCornersTransformation.CornerType.ALL)
+//                            ))
+//                    .into(myImagePager.getImageView(i));
             myImagePager.setLoading(i);
         }
     }
 
-    // 把照片 发送出去 !!!!!!!!未改动
-    public void conventImage(){
-        Bitmap bitmap = currentBitmap;
-
-        // 解码图片，转成 jpeg 格式
-        ByteArrayOutputStream s = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG,50,s);
-        byte[] b = s.toByteArray();
-        String lastString= Base64.encodeToString(b, Base64.DEFAULT);
-
-
-        AsynNetUtils.post("http://10.66.4.114:9999",  lastString , new AsynNetUtils.Callback() {
-            @Override
-            public void onResponse(String response) {
-                // 解析json串
-                String images="",style="",msg="",date="",reason="";
-//                textView.setText("receive ok.");
-                try {
-                    JsonReader reader = new JsonReader(new StringReader(response));
-
-                    reader.beginObject();
-                    while( reader.hasNext() ){
-                        String keyname = reader.nextName();
-
-                        if( "image".equals(keyname) ){
-                            images = reader.nextString();
-                        }else if( "msg".equals(keyname) ){
-                            msg = reader.nextString();
-                        }else if( "date".equals(keyname) ){
-                            date = reader.nextString();
-                        }else if( "style".equals(keyname) ){
-                            style = reader.nextString();
-                        }else if("reason".equals(keyname)){
-                            reason = reader.nextString();
-                        }
-
-                    }
-                    reader.endObject();
-
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-
-
-                //textView.setText(images);
-
-                // 把json串中的 image转成bitmap 然后展示
-                Bitmap bt = Util.base642Bitmap(images);
-//                image.setImageBitmap(bt);
-
-            }
-
-        });
-    }
+//    // 把照片 发送出去 !!!!!!!!未改动
+//    public void conventImage(){
+//        Bitmap bitmap = currentBitmap;
+//
+//        // 解码图片，转成 jpeg 格式
+//        ByteArrayOutputStream s = new ByteArrayOutputStream();
+//        bitmap.compress(Bitmap.CompressFormat.JPEG,50,s);
+//        byte[] b = s.toByteArray();
+//        String lastString= Base64.encodeToString(b, Base64.DEFAULT);
+//
+//
+//        AsynNetUtils.post("http://10.66.4.114:9999",  lastString , new AsynNetUtils.Callback() {
+//            @Override
+//            public void onResponse(String response) {
+//                // 解析json串
+//                String images="",style="",msg="",date="",reason="";
+////                textView.setText("receive ok.");
+//                try {
+//                    JsonReader reader = new JsonReader(new StringReader(response));
+//
+//                    reader.beginObject();
+//                    while( reader.hasNext() ){
+//                        String keyname = reader.nextName();
+//
+//                        if( "image".equals(keyname) ){
+//                            images = reader.nextString();
+//                        }else if( "msg".equals(keyname) ){
+//                            msg = reader.nextString();
+//                        }else if( "date".equals(keyname) ){
+//                            date = reader.nextString();
+//                        }else if( "style".equals(keyname) ){
+//                            style = reader.nextString();
+//                        }else if("reason".equals(keyname)){
+//                            reason = reader.nextString();
+//                        }
+//
+//                    }
+//                    reader.endObject();
+//
+//                }catch (Exception e){
+//                    e.printStackTrace();
+//                }
+//
+//
+//                //textView.setText(images);
+//
+//                // 把json串中的 image转成bitmap 然后展示
+//                Bitmap bt = Util.base642Bitmap(images);
+////                image.setImageBitmap(bt);
+//
+//            }
+//
+//        });
+//    }
 
     void InitViews(){
 
         // 先把要展示的图片放到 views 中
         List<Bitmap> views = new ArrayList<>();
         for (int i = 0; i < imagelist.length; i++) {
-            Bitmap bm = Util.getCompassImage(this,Util.drawableid2Uri(this,imagelist[i]),100,100);
+            Bitmap bm = Util.getCompassImage(this,Util.drawableid2Uri(this,imagelist[i]),defaultImageW,defaultImageH);
             views.add(bm);
         }
         // 获取设置好的viewPager
@@ -225,8 +223,8 @@ public class MainActivity extends AppCompatActivity {
 
         // 设置背景
         bg_view = (ImageView)findViewById(R.id.bgimageview);
-        Uri uri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + resources.getResourcePackageName(R.drawable.welcome) + '/' + resources.getResourceTypeName(R.drawable.welcome) + '/' + resources.getResourceEntryName(R.drawable.welcome) );
-        Bitmap center = Util.getCompassImage(this, uri);
+        Uri uri = Util.drawableid2Uri(this,R.drawable.welcome);
+        Bitmap center = Util.getCompassImage(this, uri,defaultImageW,defaultImageH);
         jp.wasabeef.blurry.Blurry.with(act).radius(10).from(center).into( bg_view );
 
         Palette.Builder builder = Palette.from(center);
@@ -238,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
                 Palette.Swatch color2 = palette.getDarkMutedSwatch();
                // Palette.Swatch color3 = palette.getLightVibrantColor(  );
 //                Util.setStatusBarColor(act,vibrant.getRgb());
-                Util.changeTheme(that,color2.getRgb());
+//                Util.changeTheme(that,color2.getRgb());
 
             }
         });

@@ -36,6 +36,7 @@ public class ImageColorTest extends AppCompatActivity implements SeekBar.OnSeekB
 
         bitmap =  Util.getCompassImage(this,
                 Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + resources.getResourcePackageName(image_id ) + '/' + resources.getResourceTypeName(image_id) + '/' + resources.getResourceEntryName( image_id) )
+        ,100,100
         );
 
         imageView.setImageBitmap(bitmap);
