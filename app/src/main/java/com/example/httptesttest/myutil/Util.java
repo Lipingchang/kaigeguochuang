@@ -29,6 +29,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.httptesttest.MainActivity;
 import com.example.httptesttest.R;
@@ -60,15 +61,17 @@ public class Util {
         return new IUiListener() {
             @Override
             public void onCancel() {
-                UtilOld.toastMessage(context, "分享取消");
+                Toast.makeText(context, "分享取消", Toast.LENGTH_LONG).show();
             }
             @Override
             public void onComplete(Object response) {
-                UtilOld.toastMessage(context, "分享成功" + response.toString());
+                Toast.makeText(context, "分享成功" + response.toString(), Toast.LENGTH_LONG).show();
+
             }
             @Override
             public void onError(UiError e) {
-                UtilOld.toastMessage(context, "分享出错" + e.errorMessage, "e");
+                Toast.makeText(context, "分享出错" + e.errorMessage,  Toast.LENGTH_LONG).show();
+
             }
         };
     }
