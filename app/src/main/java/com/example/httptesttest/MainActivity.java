@@ -121,21 +121,20 @@ public class MainActivity extends AppCompatActivity {
 
         //设置模糊的背景
         jp.wasabeef.blurry.Blurry.with(act).radius(30).from(img).into( bg_view );
-        //替换viewpager中的图片 并且设置正在载入中
+        //设置viewpager中的图片 并且设置正在载入中
         for( int i = 0; i<imagelist.length; i++){
             myImagePager.setImage(i,currentBitmap);
-//            Glide.with(act)
-//                    .load(currentBitmap)
-//                    .apply(
-//                            RequestOptions.bitmapTransform(
-//                                    new RoundedCornersTransformation(
-//                                            (int)(currentBitmap.getWidth()*0.08),
-//                                            0,
-//                                            RoundedCornersTransformation.CornerType.ALL)
-//                            ))
-//                    .into(myImagePager.getImageView(i));
             myImagePager.setLoading(i);
         }
+
+        Palette.Builder builder = Palette.from(img);
+        final MainActivity that = this;
+        builder.generate(new Palette.PaletteAsyncListener() {
+            @Override public void onGenerated(Palette palette) {
+                Util.changeTheme(that,palette);
+
+            }
+        });
     }
 
 //    // 把照片 发送出去 !!!!!!!!未改动
@@ -231,24 +230,12 @@ public class MainActivity extends AppCompatActivity {
         final MainActivity that = this;
         builder.generate(new Palette.PaletteAsyncListener() {
             @Override public void onGenerated(Palette palette) {
-                //获取到充满活力的这种色调
-                Palette.Swatch vibrant = palette.getDominantSwatch();
-                Palette.Swatch color2 = palette.getDarkMutedSwatch();
-               // Palette.Swatch color3 = palette.getLightVibrantColor(  );
-//                Util.setStatusBarColor(act,vibrant.getRgb());
-//                Util.changeTheme(that,color2.getRgb());
+                Util.changeTheme(that,palette);
 
             }
         });
 
     }
-
-
-//
-//    作者：imflyn
-//    链接：https://www.jianshu.com/p/932568ed31af
-//    來源：简书
-//    简书著作权归作者所有，任何形式的转载都请联系作者获得授权并注明出处。
 
 
 

@@ -5,29 +5,31 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <TextView
+        android:paddingBottom="20dp"
+        android:layout_above="@id/image"
+        android:textSize="30sp"
+        android:textAlignment="center"
+        android:text="demodemo"
         android:id="@+id/textview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <ImageView
-        android:layout_marginBottom="300px"
-        android:scaleType="fitCenter"
+        android:layout_marginBottom="235dp"
         android:layout_centerInParent="true"
         android:id="@+id/image"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:contentDescription="TODO" />
+        android:layout_width="400dp"
+        android:layout_height="600dp"
+        android:contentDescription="@string/app_name" />
 
     <!--正在加载显示的-->
     <LinearLayout
         android:id="@+id/loadinglayout"
-
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical"
         android:visibility="invisible">
-
         <ProgressBar
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

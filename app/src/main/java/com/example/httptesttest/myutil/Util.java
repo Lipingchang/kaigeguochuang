@@ -22,6 +22,7 @@ import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.graphics.Palette;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -207,8 +208,15 @@ public class Util {
 
 
     // 设置主题
-    public static void changeTheme(MainActivity activity,int color){
-        setStatusBarColor(activity,color);
+    public static void changeTheme(MainActivity activity,Palette palette){
+//                        //获取到充满活力的这种色调
+//                Palette.Swatch vibrant = palette.getDominantSwatch();
+//                Palette.Swatch color2 = palette.getDarkMutedSwatch();
+//               // Palette.Swatch color3 = palette.getLightVibrantColor(  );
+////                Util.setStatusBarColor(act,vibrant.getRgb());
+        setStatusBarColor(activity,palette.getDominantSwatch().getRgb());
+        int color = palette.getLightVibrantColor(0xff000000);
+        color = palette.getDominantSwatch().getTitleTextColor();
         setColor(activity.album_btn,activity.getDrawable(R.drawable.album_button_grey),color);
         setColor(activity.camera_btn,activity.getDrawable(R.drawable.carmera_button_grey),color);
     }

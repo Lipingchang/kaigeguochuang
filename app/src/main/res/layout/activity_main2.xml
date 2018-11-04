@@ -62,7 +62,9 @@
         android:layout_alignParentTop="true"
         android:layout_marginLeft="20dp"
         android:layout_marginTop="0dp"
-        android:layout_marginRight="20dp"></android.support.v4.view.ViewPager>
+        android:layout_marginRight="20dp">
+
+    </android.support.v4.view.ViewPager>
 
     <TextView
         android:id="@+id/textview"
@@ -71,33 +73,50 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-    <LinearLayout
-        android:id="@+id/linear"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+
+    <RelativeLayout
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="25dp"
-        android:orientation="horizontal">
-
+        android:id="@+id/linear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
         <Button
-            android:layout_marginEnd="10dp"
+            android:layout_toStartOf="@id/midtext"
             android:id="@+id/btn_from_album"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/album_button" />
-
+        <TextView
+            android:paddingRight="30dp"
+            android:paddingLeft="30dp"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/midtext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
         <Button
-            android:layout_marginStart="10dp"
             android:id="@+id/btn_from_carema"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/midtext"
             android:background="@drawable/carmera_button" />
+        <ImageView
+            android:background="@drawable/carmera_button"
+            android:id="@+id/image_btn_bg1"
+            android:layout_toEndOf="@id/midtext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ImageView
+            android:background="@drawable/album_button"
+            android:id="@+id/image_btn_bg2"
+            android:layout_toStartOf="@id/midtext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
 
-    </LinearLayout>
+
+    </RelativeLayout>
 
 
 
