@@ -36,7 +36,7 @@ public class AsynNetUtils {
         }).start();
     }
 
-    public static void post(final String url, final String content, final Callback callback){
+    public static void post(final String url, final String content, final String inputStyle, final Callback callback){
         final Handler handler = new Handler();
         new Thread(new Runnable() {
             @Override
@@ -53,7 +53,7 @@ public class AsynNetUtils {
                     String dest;
                     dest = m.replaceAll("");
 
-                    k = "{\"style\":\""+ "MainActivity.style"+ "\",\"image\":\"" + dest + "\",\"date\":\"2018-10-11\" }";
+                    k = "{\"style\":\""+ inputStyle + "\",\"image\":\"" + dest + "\",\"date\":\"2018-10-11\" }";
 
                     //MainActivity.writeStringToFile("content2.txt",dest);
 

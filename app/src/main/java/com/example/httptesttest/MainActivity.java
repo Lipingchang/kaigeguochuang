@@ -53,7 +53,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     Bitmap currentBitmap;
-    int[] imagelist = {R.drawable.viewpage1, R.drawable.viewpage2, R.drawable.viewpage3, R.drawable.viewpage4, R.drawable.viewpage5, R.drawable.viewpage6};
+    //int[] imagelist = {R.drawable.viewpage1, R.drawable.viewpage2, R.drawable.viewpage3, R.drawable.viewpage4, R.drawable.viewpage5};
+    int[] imagelist = {R.drawable.viewpage1, R.drawable.viewpage2, R.drawable.viewpage3, R.drawable.viewpage4, R.drawable.viewpage5};
 
 
     @Override
@@ -109,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
         if( img != null ){
             setCurrentImage(img);
-            //conventImage();
+            myImagePager.conventALL();
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -137,60 +138,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-//    // 把照片 发送出去 !!!!!!!!未改动
-//    public void conventImage(){
-//        Bitmap bitmap = currentBitmap;
-//
-//        // 解码图片，转成 jpeg 格式
-//        ByteArrayOutputStream s = new ByteArrayOutputStream();
-//        bitmap.compress(Bitmap.CompressFormat.JPEG,50,s);
-//        byte[] b = s.toByteArray();
-//        String lastString= Base64.encodeToString(b, Base64.DEFAULT);
-//
-//
-//        AsynNetUtils.post("http://10.66.4.114:9999",  lastString , new AsynNetUtils.Callback() {
-//            @Override
-//            public void onResponse(String response) {
-//                // 解析json串
-//                String images="",style="",msg="",date="",reason="";
-////                textView.setText("receive ok.");
-//                try {
-//                    JsonReader reader = new JsonReader(new StringReader(response));
-//
-//                    reader.beginObject();
-//                    while( reader.hasNext() ){
-//                        String keyname = reader.nextName();
-//
-//                        if( "image".equals(keyname) ){
-//                            images = reader.nextString();
-//                        }else if( "msg".equals(keyname) ){
-//                            msg = reader.nextString();
-//                        }else if( "date".equals(keyname) ){
-//                            date = reader.nextString();
-//                        }else if( "style".equals(keyname) ){
-//                            style = reader.nextString();
-//                        }else if("reason".equals(keyname)){
-//                            reason = reader.nextString();
-//                        }
-//
-//                    }
-//                    reader.endObject();
-//
-//                }catch (Exception e){
-//                    e.printStackTrace();
-//                }
-//
-//
-//                //textView.setText(images);
-//
-//                // 把json串中的 image转成bitmap 然后展示
-//                Bitmap bt = Util.base642Bitmap(images);
-////                image.setImageBitmap(bt);
-//
-//            }
-//
-//        });
-//    }
 
     void InitViews(){
 
