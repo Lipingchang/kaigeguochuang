@@ -289,7 +289,7 @@ public class MyImagePager {
         String lastString= Base64.encodeToString(b, Base64.DEFAULT);
 
         final MyImagePager that = this;
-        AsynNetUtils.post("http://10.66.4.114:9999",  lastString , inputStyle,new AsynNetUtils.Callback() {
+        AsynNetUtils.post("http://10.66.27.179:9999",  lastString , inputStyle,new AsynNetUtils.Callback() {
             @Override
             public void onResponse(String response) {
                 // 解析json串
@@ -323,12 +323,16 @@ public class MyImagePager {
 
                 //textView.setText(images);
 
-                // 把json串中的 image转成bitmap 然后展示
-                Bitmap bt = Util.base642Bitmap(images);
-                //((ImageView)views.get(index).findViewById(R.id.image)).setImageBitmap(bt);
-                that.setLoaded(index);
-                that.setImage(index,bt);
-//                image.setImageBitmap(bt);
+                try {
+                    // 把json串中的 image转成bitmap 然后展示
+                    Bitmap bt = Util.base642Bitmap(images);
+                    //((ImageView)views.get(index).findViewById(R.id.image)).setImageBitmap(bt);
+                    that.setLoaded(index);
+                    that.setImage(index, bt);
+                    //                image.setImageBitmap(bt);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
 
             }
 
