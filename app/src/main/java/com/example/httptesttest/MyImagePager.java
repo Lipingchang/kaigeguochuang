@@ -193,8 +193,9 @@ public class MyImagePager {
         int ii = 0;
         for (Bitmap bm : bitmaplist) {
             View v = inflater.inflate(viewpager_item_layout, null, false);
-            TextView t= (TextView)v.findViewById(R.id.textview_style);
-            t.setText( sytle_list_cn[ii++]);
+
+            TextView t = (TextView)v.findViewById(R.id.textview_style);
+            t.setText(sytle_list_cn[ii++]);
             //ImageView iv = (ImageView) v.findViewById(R.id.image);
             //iv.setImageBitmap(bm);
             views.add(v);
