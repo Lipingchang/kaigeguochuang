@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
@@ -54,6 +55,7 @@ public class MyImagePager {
     List<View> views;
 
     static String[] sytle_list = {"ink","monet","cezanne","ukiyoe","vangogh"};
+    static String[] sytle_list_cn = {"水墨","莫奈","塞尚","浮世绘","梵高"};
 
 
     public void setData(ViewPager viewPager, PagerAdapter pagerAdapter, List<Bitmap> bms, List<View> views) {
@@ -188,8 +190,11 @@ public class MyImagePager {
         // 初始化view
         final List<View> views = new ArrayList<>();
         LayoutInflater inflater = context.getLayoutInflater();
+        int ii = 0;
         for (Bitmap bm : bitmaplist) {
             View v = inflater.inflate(viewpager_item_layout, null, false);
+            TextView t= (TextView)v.findViewById(R.id.textview_style);
+            t.setText( sytle_list_cn[ii++]);
             //ImageView iv = (ImageView) v.findViewById(R.id.image);
             //iv.setImageBitmap(bm);
             views.add(v);

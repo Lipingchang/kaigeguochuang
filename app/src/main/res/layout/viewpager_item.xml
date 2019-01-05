@@ -9,8 +9,8 @@
         android:layout_above="@id/image"
         android:textSize="30sp"
         android:textAlignment="center"
-        android:text="demodemo"
-        android:id="@+id/textview"
+        android:text="noname_style"
+        android:id="@+id/textview_style"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
