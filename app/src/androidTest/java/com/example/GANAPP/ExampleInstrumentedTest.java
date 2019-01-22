@@ -1,4 +1,4 @@
-package com.example.httptesttest;
+package com.example.GANAPP;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.example.httptesttest", appContext.getPackageName());
+        assertEquals("com.example.GANAPP", appContext.getPackageName());
     }
 }

@@ -1,4 +1,4 @@
-package com.example.httptesttest;
+package com.example.GANAPP;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -22,8 +22,8 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
 import com.bumptech.glide.request.RequestOptions;
-import com.example.httptesttest.myutil.AsynNetUtils;
-import com.example.httptesttest.myutil.Util;
+import com.example.GANAPP.myutil.AsynNetUtils;
+import com.example.GANAPP.myutil.Util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
@@ -36,7 +36,7 @@ import jp.wasabeef.glide.transformations.BlurTransformation;
 import jp.wasabeef.glide.transformations.GrayscaleTransformation;
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
-import static com.example.httptesttest.MainActivity.act;
+import static com.example.GANAPP.MainActivity.act;
 
 public class MyImagePager {
     // viewpager 中每个view的 布局文件.
