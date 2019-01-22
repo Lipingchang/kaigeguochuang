@@ -1,4 +1,4 @@
-package com.example.httptesttest;
+package com.example.httptesttest.myutil;
 
 import android.accounts.NetworkErrorException;
 

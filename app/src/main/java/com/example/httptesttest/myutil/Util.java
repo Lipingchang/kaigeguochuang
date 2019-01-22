@@ -34,7 +34,6 @@ import android.widget.Toast;
 
 import com.example.httptesttest.MainActivity;
 import com.example.httptesttest.R;
-import com.example.httptesttest.UtilOld;
 import com.tencent.tauth.IUiListener;
 import com.tencent.tauth.UiError;
 
