@@ -1,4 +1,4 @@
-package com.example.httptesttest.testField;
+package com.example.GANAPP.testField;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;

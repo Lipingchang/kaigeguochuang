@@ -1,4 +1,4 @@
-package com.example.httptesttest.testField;
+package com.example.GANAPP.testField;
 
 import android.content.ContentResolver;
 import android.content.res.Resources;
@@ -15,8 +15,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 
-import com.example.httptesttest.R;
-import com.example.httptesttest.myutil.Util;
+import com.example.GANAPP.R;
+import com.example.GANAPP.myutil.Util;
 
 public class ImageColorTest extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
 

@@ -1,4 +1,4 @@
-package com.example.httptesttest;
+package com.example.GANAPP;
 
 
 import java.io.BufferedOutputStream;
@@ -78,7 +78,7 @@ import jp.wasabeef.glide.transformations.BitmapTransformation;
 import jp.wasabeef.glide.transformations.CropTransformation;
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
-import static com.example.httptesttest.MainActivity.act;
+import static com.example.GANAPP.MainActivity.act;
 
 public class UtilOld {
 

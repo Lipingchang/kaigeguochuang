@@ -1,4 +1,4 @@
-package com.example.httptesttest;
+package com.example.GANAPP;
 
 
 import android.content.ContentResolver;
@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
-import com.example.httptesttest.myutil.*;
+import com.example.GANAPP.myutil.*;
 
 public class MainActivity extends AppCompatActivity {
 

@@ -1,4 +1,4 @@
-package com.example.httptesttest;
+package com.example.GANAPP.myutil;
 
 import android.accounts.NetworkErrorException;
 

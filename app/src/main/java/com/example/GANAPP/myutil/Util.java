@@ -1,4 +1,4 @@
-package com.example.httptesttest.myutil;
+package com.example.GANAPP.myutil;
 
 import android.Manifest;
 import android.app.Activity;
@@ -32,9 +32,9 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.example.httptesttest.MainActivity;
-import com.example.httptesttest.R;
-import com.example.httptesttest.UtilOld;
+import com.example.GANAPP.MainActivity;
+import com.example.GANAPP.R;
+import com.example.GANAPP.UtilOld;
 import com.tencent.tauth.IUiListener;
 import com.tencent.tauth.UiError;
 
@@ -43,7 +43,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.httptesttest.MainActivity.act;
+import static com.example.GANAPP.MainActivity.act;
 
 public class Util {
     public static final String TAG = "Util";

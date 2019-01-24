@@ -1,11 +1,9 @@
-package com.example.httptesttest;
+package com.example.GANAPP;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -28,7 +26,8 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
 import com.bumptech.glide.request.RequestOptions;
-import com.example.httptesttest.myutil.Util;
+import com.example.GANAPP.myutil.AsynNetUtils;
+import com.example.GANAPP.myutil.Util;
 import com.sdsmdg.tastytoast.TastyToast;
 
 import java.io.ByteArrayOutputStream;
@@ -42,9 +41,9 @@ import jp.wasabeef.glide.transformations.BlurTransformation;
 import jp.wasabeef.glide.transformations.GrayscaleTransformation;
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
-import static com.example.httptesttest.MainActivity.act;
-import static com.example.httptesttest.UtilOld.saveImageToGallery;
-import static com.example.httptesttest.UtilOld.shareQQ;
+import static com.example.GANAPP.MainActivity.act;
+import static com.example.GANAPP.UtilOld.saveImageToGallery;
+import static com.example.GANAPP.UtilOld.shareQQ;
 
 public class MyImagePager {
     // viewpager 中每个view的 布局文件.
